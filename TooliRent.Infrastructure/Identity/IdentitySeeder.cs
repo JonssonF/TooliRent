@@ -1,22 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TooliRent.Domain.Entities;
 using TooliRent.Domain.Identity;
-using TooliRent.Infrastructure.Persistence;
 
 namespace TooliRent.Infrastructure.Identity
 {
     public class IdentitySeeder
     {
-        private readonly IConfiguration _cfg;
         private readonly RoleManager<IdentityRole> _roles;
-        private readonly ILogger<IdentitySeeder> _logger;
         private readonly UserManager<AppUser> _users;
+        private readonly IConfiguration _cfg;
+        private readonly ILogger<IdentitySeeder> _logger;
 
         public IdentitySeeder(RoleManager<IdentityRole> roles, UserManager<AppUser> users, IConfiguration cfg, ILogger<IdentitySeeder> logger)
         {
@@ -34,19 +29,19 @@ namespace TooliRent.Infrastructure.Identity
                 {
                     var result = await _roles.CreateAsync(new IdentityRole(role));
                     if (!result.Succeeded)
-                        throw new Exception($"Kunde inte skapa roll '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        throw new Exception($"Failed to create role '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
             }
 
             var email = _cfg["Seed:Admin:Email"];
             var password = _cfg["Seed:Admin:Password"];
-            var firstName = _cfg["Seed:Admin:FirstName"];
-            var lastName = _cfg["Seed:Admin:LastName"];
+            var fullName = _cfg["Seed:Admin:FullName"];
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                _logger.LogWarning("Seed:Admin saknar Email/Password i appsettings. Hoppar över admin-seed.");
-                return;
+                throw new InvalidOperationException(
+                    "Missing Seed:Admin Email/Password in configuration. " +
+                    "Add them under TooliRent.API/appsettings.(Development).json");
             }
 
             var admin = await _users.FindByEmailAsync(email);
@@ -57,20 +52,19 @@ namespace TooliRent.Infrastructure.Identity
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
-                    FirstName = firstName,   // 👈 funkar när kolumnerna finns i DB
-                    LastName = lastName
+                    FullName = fullName
                 };
 
                 var create = await _users.CreateAsync(admin, password);
                 if (!create.Succeeded)
-                    throw new Exception($"Kunde inte skapa admin: {string.Join(", ", create.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Failed to create admin user: {string.Join(", ", create.Errors.Select(e => e.Description))}");
             }
 
             if (!await _users.IsInRoleAsync(admin, Roles.Admin))
             {
                 var add = await _users.AddToRoleAsync(admin, Roles.Admin);
                 if (!add.Succeeded)
-                    throw new Exception($"Kunde inte lägga admin i {Roles.Admin}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Failed to add admin user to {Roles.Admin}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
             }
         }
     }

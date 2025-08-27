@@ -20,17 +20,19 @@ namespace TooliRent.API
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
 
-            //DbContext
+            // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            //Identity
+            // Identity
             builder.Services.AddScoped<IdentitySeeder>();
 
             builder.Services.AddIdentityCore<AppUser>(o =>
             {
+                // Password specs
                 o.Password.RequireNonAlphanumeric = true;
-                o.Password.RequiredLength = 8;
+                o.Password.RequiredLength = 6;
+                // User specs
                 o.User.RequireUniqueEmail = true;
             })
                 .AddRoles<IdentityRole>()

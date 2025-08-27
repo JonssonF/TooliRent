@@ -5,7 +5,7 @@ using TooliRent.Domain.Entities;
 
 namespace TooliRent.Infrastructure.Persistence
 {
-    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole, string>
+    public class AppDbContext : IdentityDbContext<TooliRent.Domain.Entities.AppUser, IdentityRole, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){}
 
