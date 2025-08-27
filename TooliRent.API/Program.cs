@@ -1,4 +1,7 @@
 
+using Microsoft.EntityFrameworkCore;
+using TooliRent.Infrastructure.Persistence;
+
 namespace TooliRent.API
 {
     public class Program
@@ -13,6 +16,15 @@ namespace TooliRent.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            //DbContext
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //Repositories
+
+            //Services
+
 
             var app = builder.Build();
 
