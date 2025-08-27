@@ -9,7 +9,7 @@ namespace TooliRent.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +25,8 @@ namespace TooliRent.API
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             //Identity
+            builder.Services.AddScoped<IdentitySeeder>();
+
             builder.Services.AddIdentityCore<AppUser>(o =>
             {
                 o.Password.RequireNonAlphanumeric = true;
@@ -43,7 +45,7 @@ namespace TooliRent.API
             using (var scope = app.Services.CreateScope())
             {
                 var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
-                seeder.SeedAsync().Wait();
+                await seeder.SeedAsync();
             }
 
             // Configure the HTTP request pipeline.

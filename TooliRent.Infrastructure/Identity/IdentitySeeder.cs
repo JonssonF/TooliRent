@@ -38,7 +38,6 @@ namespace TooliRent.Infrastructure.Identity
                 }
             }
 
-            
             var email = _cfg["Seed:Admin:Email"];
             var password = _cfg["Seed:Admin:Password"];
             var firstName = _cfg["Seed:Admin:FirstName"];
@@ -46,7 +45,7 @@ namespace TooliRent.Infrastructure.Identity
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                _logger.LogWarning("Seed:Admin missing Email/Password in appsettings. Skipping admin-seed.");
+                _logger.LogWarning("Seed:Admin saknar Email/Password i appsettings. Hoppar över admin-seed.");
                 return;
             }
 
@@ -58,21 +57,20 @@ namespace TooliRent.Infrastructure.Identity
                     UserName = email,
                     Email = email,
                     EmailConfirmed = true,
-                    FirstName = firstName,
+                    FirstName = firstName,   // 👈 funkar när kolumnerna finns i DB
                     LastName = lastName
                 };
 
                 var create = await _users.CreateAsync(admin, password);
                 if (!create.Succeeded)
-                    throw new Exception($"Could not create admin: {string.Join(", ", create.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Kunde inte skapa admin: {string.Join(", ", create.Errors.Select(e => e.Description))}");
             }
 
-            
             if (!await _users.IsInRoleAsync(admin, Roles.Admin))
             {
                 var add = await _users.AddToRoleAsync(admin, Roles.Admin);
                 if (!add.Succeeded)
-                    throw new Exception($"Could not add admin in {Roles.Admin}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
+                    throw new Exception($"Kunde inte lägga admin i {Roles.Admin}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
             }
         }
     }
