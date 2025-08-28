@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TooliRent.Application\TooliRent.Application.csproj" />
     <ProjectReference Include="..\TooliRent.Domain\TooliRent.Domain.csproj" />
     <ProjectReference Include="..\TooliRent.Infrastructure\TooliRent.Infrastructure.csproj" />
   </ItemGroup>

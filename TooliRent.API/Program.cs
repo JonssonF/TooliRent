@@ -1,9 +1,13 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using TooliRent.Application.Authentication;
 using Microsoft.EntityFrameworkCore;
 using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using TooliRent.Infrastructure.Identity;
 using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
+using System.Text;
 
 namespace TooliRent.API
 {
@@ -19,10 +23,12 @@ namespace TooliRent.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
-
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            //Repositories
+
+            //Services
 
             // Identity
             builder.Services.AddScoped<IdentitySeeder>();
@@ -37,26 +43,34 @@ namespace TooliRent.API
             })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
+            // Token Service
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            // JWT Authentication
+            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 
-            //Repositories
-
-            //Services
+            builder.Services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(o =>
+                {
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ClockSkew = TimeSpan.FromMinutes(1)
+                    };
+                });
 
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
             {
-                try
-                {
-
                 var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
                 await seeder.SeedAsync();
-                }
-                catch (Exception ex)
-                {
-                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred during seeding the database.");
-                }
             }
 
             // Configure the HTTP request pipeline.
@@ -67,12 +81,10 @@ namespace TooliRent.API
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
-
+            //LETS GO!
             app.Run();
         }
     }
