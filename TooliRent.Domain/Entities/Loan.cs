@@ -9,12 +9,9 @@ namespace TooliRent.Domain.Entities
     public class Loan
     {
         public int Id { get; set; }
-
         public int BookingId { get; set; }
         public Booking? Booking { get; set; }
-
         public string MemberId { get; set; } = string.Empty;
-
         public DateTime PickUpAt { get; set; }
         public DateTime DueAt { get; set; }
         public DateTime? ReturnedAt { get; set; }
