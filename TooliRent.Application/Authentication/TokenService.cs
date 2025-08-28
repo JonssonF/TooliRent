@@ -12,6 +12,7 @@ namespace TooliRent.Application.Authentication
     public interface ITokenService
     {
         Task<(string accessToken, DateTime expiresUtc)> CreateAccessTokenAsync(AppUser user);
+        string CreateRefreshToken();
     }
     public class TokenService :ITokenService
     {
