@@ -3,17 +3,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Identity;
+using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
 
 namespace TooliRent.Infrastructure.Identity
 {
     public class IdentitySeeder
     {
         private readonly RoleManager<IdentityRole> _roles;
-        private readonly UserManager<AppUser> _users;
+        private readonly UserManager<InfraAppUser> _users;
         private readonly IConfiguration _cfg;
         private readonly ILogger<IdentitySeeder> _logger;
 
-        public IdentitySeeder(RoleManager<IdentityRole> roles, UserManager<AppUser> users, IConfiguration cfg, ILogger<IdentitySeeder> logger)
+        public IdentitySeeder(RoleManager<IdentityRole> roles, UserManager<InfraAppUser> users, IConfiguration cfg, ILogger<IdentitySeeder> logger)
         {
             _cfg = cfg;
             _roles = roles;
@@ -23,7 +24,7 @@ namespace TooliRent.Infrastructure.Identity
 
         public async Task SeedAsync()
         {
-            foreach (var role in new[] { Roles.Admin, Roles.Member })
+            foreach (var role in new[] { "Admin", "Member" })
             {
                 if (!await _roles.RoleExistsAsync(role))
                 {
@@ -40,8 +41,7 @@ namespace TooliRent.Infrastructure.Identity
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 throw new InvalidOperationException(
-                    "Missing Seed:Admin Email/Password in configuration. " +
-                    "Add them under TooliRent.API/appsettings.(Development).json");
+                    "Missing Seed:Admin Email/Password in configuration. ");
             }
 
             var admin = await _users.FindByEmailAsync(email);
@@ -60,9 +60,9 @@ namespace TooliRent.Infrastructure.Identity
                     throw new Exception($"Failed to create admin user: {string.Join(", ", create.Errors.Select(e => e.Description))}");
             }
 
-            if (!await _users.IsInRoleAsync(admin, Roles.Admin))
+            if (!await _users.IsInRoleAsync(admin, "Admin"))
             {
-                var add = await _users.AddToRoleAsync(admin, Roles.Admin);
+                var add = await _users.AddToRoleAsync(admin, "Admin");
                 if (!add.Succeeded)
                     throw new Exception($"Failed to add admin user to {Roles.Admin}: {string.Join(", ", add.Errors.Select(e => e.Description))}");
             }

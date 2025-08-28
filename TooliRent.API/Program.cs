@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
-using TooliRent.Domain.Entities;
 using TooliRent.Infrastructure.Identity;
+using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
 
 namespace TooliRent.API
 {
@@ -27,7 +27,7 @@ namespace TooliRent.API
             // Identity
             builder.Services.AddScoped<IdentitySeeder>();
 
-            builder.Services.AddIdentityCore<AppUser>(o =>
+            builder.Services.AddIdentityCore<InfraAppUser>(o =>
             {
                 // Password specs
                 o.Password.RequireNonAlphanumeric = true;
@@ -46,8 +46,17 @@ namespace TooliRent.API
 
             using (var scope = app.Services.CreateScope())
             {
+                try
+                {
+
                 var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
                 await seeder.SeedAsync();
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred during seeding the database.");
+                }
             }
 
             // Configure the HTTP request pipeline.
