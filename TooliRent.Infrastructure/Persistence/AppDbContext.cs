@@ -16,6 +16,7 @@ namespace TooliRent.Infrastructure.Persistence
         public DbSet<BookingItem> BookingItems => Set<BookingItem>();
         public DbSet<Loan> Loans => Set<Loan>();
         public DbSet<LoanItem> LoanItems => Set<LoanItem>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -48,6 +49,10 @@ namespace TooliRent.Infrastructure.Persistence
                 .HasMany(x => x.Items)
                 .WithOne(i => i.Loan!)
                 .HasForeignKey(i => i.LoanId);
+
+            b.Entity<RefreshToken>()
+                .HasIndex(x => x.Token)
+                .IsUnique();
         }
     }
 }
