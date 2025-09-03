@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TooliRent.Domain.Entities;
-using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
+using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.Infrastructure.Persistence
 {
-    public class AppDbContext : IdentityDbContext<InfraAppUser, IdentityRole, string>
+    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){}
 

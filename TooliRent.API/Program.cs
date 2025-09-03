@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using TooliRent.Infrastructure.Identity;
-using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
 using System.Text;
 
 namespace TooliRent.API
@@ -33,7 +32,7 @@ namespace TooliRent.API
             // Identity
             builder.Services.AddScoped<IdentitySeeder>();
 
-            builder.Services.AddIdentityCore<InfraAppUser>(o =>
+            builder.Services.AddIdentityCore<AppUser>(o =>
             {
                 // Password specs
                 o.Password.RequireNonAlphanumeric = true;
