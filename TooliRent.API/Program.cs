@@ -25,9 +25,13 @@ namespace TooliRent.API
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            //Repositories
+            // Repositories
 
-            //Services
+            // Services
+
+            // AutoMapper
+            builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
+
 
             // Identity
             builder.Services.AddScoped<IdentitySeeder>();

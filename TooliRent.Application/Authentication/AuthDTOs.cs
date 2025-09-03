@@ -12,7 +12,7 @@ namespace TooliRent.Application.Authentication
     public record AuthResponse(string AccessToken, string RefreshToken, DateTime ExpiresUtc);
     public record PromoteUserRequest
     {
-        public string UserId { get; init; } = default!;
+        public string? Email { get; init; }
         public bool RemoveMemberRole { get; init; } = false;
     }
 

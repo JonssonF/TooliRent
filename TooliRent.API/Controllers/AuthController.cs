@@ -29,6 +29,14 @@ namespace TooliRent.API.Controllers
             _context = context;
         }
 
+
+        /*------------Helper Method to find correct User throu claims----------------*/
+        private string? GetUserIdFromClaims() =>
+               User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        /*---------------------------------------------------------------------------*/
+
         [HttpPost("Register")]
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
@@ -43,7 +51,9 @@ namespace TooliRent.API.Controllers
 
             var create = await _users.CreateAsync(user, request.Password);
             if (!create.Succeeded)
+            {
                 return BadRequest(new { Errors = create.Errors.Select(e => e.Description) });
+            }
 
             if (await _roles.RoleExistsAsync("Member"))
             {
@@ -98,19 +108,26 @@ namespace TooliRent.API.Controllers
 
         public async Task<ActionResult<AuthResponse>> Refresh([FromBody] RefreshRequest request)
         {
+            // Initial accesstoken is only stored locally, only refresh token is stored in DB.
+
+            // Find refresh token in DB, must exists and not revoked
             var rt = await _context.RefreshTokens
                 .FirstOrDefaultAsync(t => t.Token == request.RefreshToken && !t.Revoked);
 
             if (rt is null || rt.ExpiresUtc < DateTime.UtcNow)
+            {
                 return Unauthorized("Invalid or expired refresh token.");
-
+            }
+            // Find user associated with this token
             var user = await _users.FindByIdAsync(rt.UserId);
             if (user is null)
             {
                 return Unauthorized("The user associated with this refresh token could not be found.");
             }
 
+            // Revoke current refresh token and create a new one (rotation)
             rt.Revoked = true;
+            
             var newRefresh = _tokens.CreateRefreshToken();
             _context.RefreshTokens.Add(new RefreshToken
             {
@@ -119,25 +136,31 @@ namespace TooliRent.API.Controllers
                 ExpiresUtc = DateTime.UtcNow.AddMinutes(60),
             });
 
+            // Create new access token for user
             var (access, expires) = await _tokens.CreateAccessTokenAsync(user);
             await _context.SaveChangesAsync();
 
             return Ok(new AuthResponse(access, newRefresh, expires));
         }
 
+
+
         [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<object>> Me()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
-                      ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var userId = GetUserIdFromClaims();
 
             if (string.IsNullOrWhiteSpace(userId))
+            {
                 return Unauthorized(new { error = "No user id claim in token." });
+            }
 
             var user = await _users.FindByIdAsync(userId);
             if (user is null)
+            {
                 return Unauthorized(new { error = "User not found." });
+            }
 
             var roles = await _users.GetRolesAsync(user);
 
@@ -150,6 +173,5 @@ namespace TooliRent.API.Controllers
                 Roles = roles
             });
         }
-        
     }
 }
