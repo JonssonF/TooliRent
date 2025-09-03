@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TooliRent.Domain.Entities;
+using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
 
 namespace TooliRent.Infrastructure.Persistence
 {
-    public class AppDbContext : IdentityDbContext<AppUser, IdentityRole, string>
+    public class AppDbContext : IdentityDbContext<InfraAppUser, IdentityRole, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){}
 
@@ -24,10 +25,19 @@ namespace TooliRent.Infrastructure.Persistence
             b.Entity<LoanItem>().HasKey(x => new { x.LoanId, x.ToolId });
 
             b.Entity<Tool>()
+                .Property(t => t.PricePerDay)
+                .HasPrecision(18, 2);
+
+            b.Entity<Tool>()
+                .Property(t => t.PricePerHour)
+                .HasPrecision(18, 2);
+
+            b.Entity<Tool>()
                 .HasOne(t => t.Category)
                 .WithMany()
                 .HasForeignKey(t => t.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+                
 
             b.Entity<Booking>()
                 .HasMany(x => x.Items)
