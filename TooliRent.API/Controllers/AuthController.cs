@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using TooliRent.Application.Authentication;
 using TooliRent.Domain.Entities;
 using TooliRent.Infrastructure.Identity;
@@ -123,23 +125,22 @@ namespace TooliRent.API.Controllers
             return Ok(new AuthResponse(access, newRefresh, expires));
         }
 
-        [HttpGet("Me")]
         [Authorize]
+        [HttpGet("me")]
         public async Task<ActionResult<object>> Me()
         {
-            var userId = User?.Claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId is null)
-            {
-                return Unauthorized();
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                      ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized(new { error = "No user id claim in token." });
 
             var user = await _users.FindByIdAsync(userId);
             if (user is null)
-            {
-                return Unauthorized();
-            }
+                return Unauthorized(new { error = "User not found." });
 
             var roles = await _users.GetRolesAsync(user);
+
             return Ok(new
             {
                 user.Id,
@@ -149,5 +150,6 @@ namespace TooliRent.API.Controllers
                 Roles = roles
             });
         }
+        
     }
 }
