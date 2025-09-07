@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace TooliRent.Application.Users
 {
     public record UserDto {
-        string Id { get; init; } = default!;
-        string Email { get; init; } = default!;
-        string? FullName { get; init; }
-        public List<string> Roles { get; init; } = new List<string>();
+       public string Id { get; init; } = default!;
+       public string Email { get; init; } = default!;
+       public string? FullName { get; init; }
+       public List<string> Roles { get; init; } = new List<string>();
     }
 }

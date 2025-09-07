@@ -9,6 +9,7 @@ using TooliRent.Infrastructure.Identity;
 using System.Text;
 using TooliRent.Domain.Users;
 using TooliRent.Infrastructure.Users;
+using TooliRent.Application.Users;
 
 namespace TooliRent.API
 {
@@ -33,6 +34,7 @@ namespace TooliRent.API
 
             // Services
             builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
