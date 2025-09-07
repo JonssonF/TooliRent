@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using TooliRent.Domain.Users;
 using TooliRent.Infrastructure.Persistence;
 
@@ -60,7 +61,26 @@ namespace TooliRent.Infrastructure.Users
 
         public async Task<Dictionary<string, List<string>>> GetRolesForUsersAsync(IEnumerable<string> userIds, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var ids =  userIds.Distinct().ToList();
+            if(ids.Count == 0)
+            {
+                return new Dictionary<string, List<string>>();
+            }
+
+            var roles =  await (from ur in _context.UserRoles.AsNoTracking()
+                                join r in _context.Roles.AsNoTracking() on ur.RoleId equals r.Id
+                                where ids.Contains(ur.UserId)
+                                select new { ur.UserId, r.Name })
+                    .ToListAsync(cancellationToken);
+
+            return roles
+                .GroupBy(x => x.UserId)
+                .ToDictionary(
+                g => g.Key, 
+                g => g.Select(x => x.Name!)
+                            .Where(n => n != null)
+                            .OrderBy(n => n)
+                            .ToList());
         }
 
     }
