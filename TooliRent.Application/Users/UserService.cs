@@ -17,6 +17,7 @@ namespace TooliRent.Application.Users
             _repo = repo;
         }
 
+        // Get a page of users with optional search and role filtering
         public async Task<PagedResult<UserDto>> GetUsersPageAsync(int page, int pageSize, string? search, string? role, CancellationToken cancellationToken)
         {
             var (rows, total) = await _repo.GetUsersPageAsync(page, pageSize, search, role, cancellationToken);
@@ -32,6 +33,36 @@ namespace TooliRent.Application.Users
             }).ToList();
 
             return new PagedResult<UserDto>(items, total, page, pageSize);
+        }
+
+        // Get all users (up to 'max') sorted by their highest priority role and then by name/email
+        public async Task<IReadOnlyList<UserDto>> GetAllUsersSortedByRoleAsync(int max, CancellationToken cancellationToken)
+        {
+            var (rows, _) = _repo.GetUsersPageAsync(1, max, null, null, cancellationToken).Result;
+
+            var roleMap = await _repo.GetRolesForUsersAsync(rows.Select(r => r.Id), cancellationToken);
+
+            var items = rows.Select(r => new UserDto
+            {
+                Id = r.Id,
+                Email = r.Email ?? string.Empty,
+                FullName = r.FullName,
+                Roles = roleMap.TryGetValue(r.Id, out var roles) ? roles : new List<string>()
+            });
+
+            var sorted = items
+                .Select(u => new
+                {
+                    User = u,
+                    BestRolePriority = u.Roles.Select(RolePriority.GetPriority).DefaultIfEmpty(99).Min(),
+                    NameForSort = u.FullName ?? u.Email
+                })
+                .OrderBy(x => x.BestRolePriority)
+                .ThenBy(x => x.NameForSort)
+                .Select(x => x.User)
+                .ToList();
+
+            return sorted;
         }
     }
 }

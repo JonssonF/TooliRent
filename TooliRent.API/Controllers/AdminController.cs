@@ -8,9 +8,9 @@ using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.API.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("api/users")]
+    [Route("api/admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly UserManager<AppUser> _users;
@@ -63,7 +63,7 @@ namespace TooliRent.API.Controllers
 
         // Inte bästa sättet att få med rollerna i en user lista då det blir flera anrop till DB, undersök andra sätt att lösa detta på.
 
-        [HttpGet]
+        /*[HttpGet]
         public async Task<IActionResult> GetUsers()
         {
             var users = _users.Users.ToList();
@@ -82,6 +82,6 @@ namespace TooliRent.API.Controllers
             }
 
             return Ok(result);
-        }
+        }*/
     }
 }

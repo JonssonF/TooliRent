@@ -13,7 +13,7 @@ namespace TooliRent.Infrastructure.Users
         {
             _context = context;
         }
-
+        // Get a paged list of users, with optional search and role filtering
         public async Task<(IReadOnlyList<UserRow> Rows, int Total)> GetUsersPageAsync(int page, int pageSize, string? search, string? role, CancellationToken cancellationToken)
         {
             if (page < 1)
@@ -58,7 +58,7 @@ namespace TooliRent.Infrastructure.Users
 
             return (rows, total);
         }
-
+        // Get roles for a list of user IDs
         public async Task<Dictionary<string, List<string>>> GetRolesForUsersAsync(IEnumerable<string> userIds, CancellationToken cancellationToken)
         {
             var ids =  userIds.Distinct().ToList();
