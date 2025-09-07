@@ -7,6 +7,8 @@ using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using TooliRent.Infrastructure.Identity;
 using System.Text;
+using TooliRent.Domain.Users;
+using TooliRent.Infrastructure.Users;
 
 namespace TooliRent.API
 {
@@ -22,12 +24,15 @@ namespace TooliRent.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
+
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             // Repositories
 
             // Services
+            builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
 
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
