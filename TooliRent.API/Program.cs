@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using TooliRent.Infrastructure.Identity;
-using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
 using System.Text;
+using TooliRent.Domain.Users;
+using TooliRent.Infrastructure.Users;
+using TooliRent.Application.Users;
 
 namespace TooliRent.API
 {
@@ -23,17 +25,25 @@ namespace TooliRent.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
+
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            //Repositories
 
-            //Services
+            // Repositories
+
+            // Services
+            builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            // AutoMapper
+            builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
+
 
             // Identity
             builder.Services.AddScoped<IdentitySeeder>();
 
-            builder.Services.AddIdentityCore<InfraAppUser>(o =>
+            builder.Services.AddIdentityCore<AppUser>(o =>
             {
                 // Password specs
                 o.Password.RequireNonAlphanumeric = true;
@@ -71,11 +81,11 @@ namespace TooliRent.API
                 c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
+                    Description = "Se nu till att få rätt långa super kod.",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Se nu till att få rätt långa super kod."
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
                 });
                 c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
                 {

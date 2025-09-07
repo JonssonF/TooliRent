@@ -3,18 +3,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Identity;
-using InfraAppUser = TooliRent.Infrastructure.Identity.AppUser;
+using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.Infrastructure.Identity
 {
     public class IdentitySeeder
     {
         private readonly RoleManager<IdentityRole> _roles;
-        private readonly UserManager<InfraAppUser> _users;
+        private readonly UserManager<AppUser> _users;
         private readonly IConfiguration _cfg;
         private readonly ILogger<IdentitySeeder> _logger;
 
-        public IdentitySeeder(RoleManager<IdentityRole> roles, UserManager<InfraAppUser> users, IConfiguration cfg, ILogger<IdentitySeeder> logger)
+        public IdentitySeeder(RoleManager<IdentityRole> roles, UserManager<AppUser> users, IConfiguration cfg, ILogger<IdentitySeeder> logger)
         {
             _cfg = cfg;
             _roles = roles;
