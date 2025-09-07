@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TooliRent.Application.Authentication;
-using TooliRent.Domain.Identity;
+using TooliRent.Application.Users;
 using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.API.Controllers
