@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Enums;
-using TooliRent.Domain.Entities;
 
-namespace TooliRent.Domain.Tools;
+namespace TooliRent.Application.Tools;
 
-public interface IToolReadRepository
+public interface IToolService
 {
-    //Returns a list of tools based on optional filters: search term, category ID, and status.
-
-    Task<IReadOnlyList<ToolListRow>> GetAsync(
+    Task<IReadOnlyList<ToolListItemDto>> GetAsync(
         string? search,
         int? categoryId,
         ToolStatus? status,

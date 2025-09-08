@@ -7,7 +7,7 @@ using TooliRent.Domain.Enums;
 
 namespace TooliRent.Application.Tools
 {
-    public sealed record ToolDtos
+    public sealed record ToolListItemDto
     {
         public int Id { get; init; }
         public string Name { get; init; } = string.Empty;
