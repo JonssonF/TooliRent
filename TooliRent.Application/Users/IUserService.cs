@@ -11,7 +11,6 @@ namespace TooliRent.Application.Users
     {
         Task<PagedResult<UserDto>> GetUsersPageAsync(
             int page, int pageSize, string? search, string? role, CancellationToken cancellationToken);
-
         Task<IReadOnlyList<UserDto>> GetAllUsersSortedByRoleAsync(int max, CancellationToken cancellationToken);
     }
 }

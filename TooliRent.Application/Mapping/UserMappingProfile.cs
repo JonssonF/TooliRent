@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Application.Users;
-using TooliRent.Infrastructure.Identity;
+using TooliRent.Domain.Users;
 
 namespace TooliRent.Application.Mapping
 {
@@ -13,7 +13,7 @@ namespace TooliRent.Application.Mapping
     {
         public UserMappingProfile()
         {
-            CreateMap<AppUser, UserDto>()
+            CreateMap<UserRow, UserDto>()
                 .ForCtorParam("Id", opt => opt.MapFrom(src => src.Id))
                 .ForCtorParam("Email", opt => opt.MapFrom(src => src.Email))
                 .ForCtorParam("FullName", opt => opt.MapFrom(src => src.FullName))

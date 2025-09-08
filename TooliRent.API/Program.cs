@@ -10,6 +10,7 @@ using System.Text;
 using TooliRent.Domain.Users;
 using TooliRent.Infrastructure.Users;
 using TooliRent.Application.Users;
+using TooliRent.Infrastructure.Authentication;
 
 namespace TooliRent.API
 {
@@ -31,9 +32,10 @@ namespace TooliRent.API
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Repositories
+            builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
 
             // Services
-            builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
+            builder.Services.AddScoped<IAdminUserService, AdminUserService>();
             builder.Services.AddScoped<IUserService, UserService>();
 
             // AutoMapper
@@ -53,25 +55,52 @@ namespace TooliRent.API
             })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
+
             // Token Service
             builder.Services.AddScoped<ITokenService, TokenService>();
+
             // JWT Authentication
-            var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+            var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+            if (string.IsNullOrWhiteSpace(jwt.Key) || Encoding.UTF8.GetByteCount(jwt.Key) < 32)        
+                throw new InvalidOperationException("Jwt:Key is missing or is to short, min 32 chars.");
+            if (string.IsNullOrWhiteSpace(jwt.Issuer) || string.IsNullOrWhiteSpace(jwt.Audience))
+                throw new InvalidOperationException("Jwt:Issuer and Jwt:Audience must exist.");
+
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key));
 
             builder.Services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(o =>
                 {
+                    o.RequireHttpsMetadata = false;
+                    o.SaveToken = true;
+
                     o.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidIssuer = jwt.Issuer,
+                        ValidAudience = jwt.Audience,
+                        IssuerSigningKey = signingKey,
                         ClockSkew = TimeSpan.FromMinutes(1)
+                    };
+                    o.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = ctx =>
+                        {
+                            Console.WriteLine($"JWT auth failed: {ctx.Exception.GetType().Name} - {ctx.Exception.Message}");
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = ctx =>
+                        {
+                            Console.WriteLine("[JWT] Token validated");
+                            return Task.CompletedTask;
+                        }
+
                     };
                 });
 

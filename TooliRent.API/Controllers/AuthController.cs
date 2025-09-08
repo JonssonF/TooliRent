@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TooliRent.Application.Authentication;
 using TooliRent.Domain.Entities;
+using TooliRent.Domain.Identity;
 using TooliRent.Infrastructure.Identity;
 using TooliRent.Infrastructure.Persistence;
 
@@ -48,21 +49,30 @@ namespace TooliRent.API.Controllers
                 EmailConfirmed = true,
                 FullName = request.FullName
             };
-
+            
             var create = await _users.CreateAsync(user, request.Password);
             if (!create.Succeeded)
             {
                 return BadRequest(new { Errors = create.Errors.Select(e => e.Description) });
             }
-
-            if (await _roles.RoleExistsAsync("Member"))
+            //Puts new user in "Member" role if it exists
+            if (await _roles.RoleExistsAsync(Roles.Member))
             {
-                await _users.AddToRoleAsync(user, "Member");
+                await _users.AddToRoleAsync(user, Roles.Member);
             }
 
-            var (access, expires) = await _tokens.CreateAccessTokenAsync(user);
-            var refresh = _tokens.CreateRefreshToken();
+            var roles = await _users.GetRolesAsync(user);
+            var authUser = new AuthUser
+            (
+                user.Id,
+                user.Email,
+                user.UserName,
+                roles.ToArray()
+            );
+            var tokenResult = await _tokens.CreateAccessTokenAsync(authUser);
+            var (access, expires) = await _tokens.CreateAccessTokenAsync(authUser);
 
+            var refresh = _tokens.CreateRefreshToken();
             _context.RefreshTokens.Add(new RefreshToken
             {
                 UserId = user.Id,
@@ -90,9 +100,17 @@ namespace TooliRent.API.Controllers
                 return Unauthorized("Bad credentials.");
             }
 
-            var (access, expires) = await _tokens.CreateAccessTokenAsync(user);
-            var refresh = _tokens.CreateRefreshToken();
+            var roles = await _users.GetRolesAsync(user);
+            var authUser = new AuthUser
+            (
+                user.Id,
+                user.Email,
+                user.UserName,
+                roles.ToArray()
+            );
+            var (access, expires) = await _tokens.CreateAccessTokenAsync(authUser);
 
+            var refresh = _tokens.CreateRefreshToken();
             _context.RefreshTokens.Add(new RefreshToken
             {
                 UserId = user.Id,
@@ -137,9 +155,18 @@ namespace TooliRent.API.Controllers
             });
 
             // Create new access token for user
-            var (access, expires) = await _tokens.CreateAccessTokenAsync(user);
-            await _context.SaveChangesAsync();
+            var roles = await _users.GetRolesAsync(user);
+            var authUser = new AuthUser
+            (
+                user.Id,
+                user.Email,
+                user.UserName,
+                roles.ToArray()
+            );
+            var tokenResult = await _tokens.CreateAccessTokenAsync(authUser);
+            var (access, expires) = await _tokens.CreateAccessTokenAsync(authUser);
 
+            await _context.SaveChangesAsync();
             return Ok(new AuthResponse(access, newRefresh, expires));
         }
 
