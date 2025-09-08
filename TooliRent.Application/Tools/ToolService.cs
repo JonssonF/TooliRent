@@ -8,7 +8,7 @@ using TooliRent.Domain.Tools;
 
 namespace TooliRent.Application.Tools
 {
-    internal class ToolService : IToolService
+    public class ToolService : IToolService
     {
         private readonly IToolReadRepository _toolRead;
 

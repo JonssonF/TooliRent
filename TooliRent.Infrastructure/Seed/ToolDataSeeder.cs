@@ -18,7 +18,7 @@ namespace TooliRent.Infrastructure.Seed
             _context = context;
         }
 
-        public async Task SeedAsync(CancellationToken cancellationToken)
+        public async Task SeedAsync(CancellationToken cancellationToken = default)
         {
             
             if (await _context.Tools.AnyAsync(cancellationToken))
