@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Tools;
 
@@ -26,7 +27,7 @@ namespace TooliRent.Application.Tools
                 Id = r.Id,
                 Name = r.Name,
                 CategoryName = r.CategoryName,
-                Status = r.status,
+                Status = r.Status,
                 PricePerDay = r.PricePerDay
             }).ToList();
         }

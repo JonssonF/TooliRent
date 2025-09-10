@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Application.Users;
+using TooliRent.Application.Users.DTOs;
 using TooliRent.Domain.Common;
 
 namespace TooliRent.API.Controllers

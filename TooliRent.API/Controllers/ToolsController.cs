@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Application.Tools;
+using TooliRent.Application.Tools.DTOs;
 
 namespace TooliRent.API.Controllers
 {
