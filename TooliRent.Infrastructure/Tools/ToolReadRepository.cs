@@ -20,6 +20,16 @@ namespace TooliRent.Infrastructure.Tools
             _context = context;
         }
 
+        public Task<int> CountExistingAsync(IEnumerable<int> toolIds, CancellationToken cancellationToken)
+        {
+            var ids = toolIds.Distinct().ToList();
+
+            return _context.Tools
+                .AsNoTracking()
+                .Where(t => ids.Contains(t.Id))
+                .CountAsync(cancellationToken);
+        }
+
         public async Task<IReadOnlyList<ToolListRow>> GetAsync(string? search, int? categoryId, ToolStatus? status, CancellationToken cancellationToken)
         {
             var query = _context.Tools

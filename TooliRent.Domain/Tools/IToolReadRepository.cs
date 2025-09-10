@@ -17,4 +17,6 @@ public interface IToolReadRepository
         int? categoryId,
         ToolStatus? status,
         CancellationToken cancellationToken);
+
+    Task<int> CountExistingAsync(IEnumerable<int> toolIds, CancellationToken cancellationToken);
 }

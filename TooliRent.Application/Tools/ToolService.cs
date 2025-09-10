@@ -27,7 +27,7 @@ namespace TooliRent.Application.Tools
                 Id = r.Id,
                 Name = r.Name,
                 CategoryName = r.CategoryName,
-                Status = r.Status,
+                Status = r.status,
                 PricePerDay = r.PricePerDay
             }).ToList();
         }
