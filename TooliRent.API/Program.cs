@@ -11,6 +11,10 @@ using TooliRent.Domain.Users;
 using TooliRent.Infrastructure.Users;
 using TooliRent.Application.Users;
 using TooliRent.Infrastructure.Authentication;
+using TooliRent.Infrastructure.Seed;
+using TooliRent.Application.Tools;
+using TooliRent.Infrastructure.Tools;
+using TooliRent.Domain.Tools;
 
 namespace TooliRent.API
 {
@@ -33,16 +37,17 @@ namespace TooliRent.API
 
             // Repositories
             builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
-
+            builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IToolService, ToolService>();
 
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
 
-
-            // Identity
+            // Seeding
+            builder.Services.AddScoped<ToolDataSeeder>();
             builder.Services.AddScoped<IdentitySeeder>();
 
             builder.Services.AddIdentityCore<AppUser>(o =>
@@ -63,11 +68,6 @@ namespace TooliRent.API
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 
             var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
-            if (string.IsNullOrWhiteSpace(jwt.Key) || Encoding.UTF8.GetByteCount(jwt.Key) < 32)        
-                throw new InvalidOperationException("Jwt:Key is missing or is to short, min 32 chars.");
-            if (string.IsNullOrWhiteSpace(jwt.Issuer) || string.IsNullOrWhiteSpace(jwt.Audience))
-                throw new InvalidOperationException("Jwt:Issuer and Jwt:Audience must exist.");
-
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key));
 
             builder.Services
@@ -139,6 +139,9 @@ namespace TooliRent.API
             {
                 var seeder = scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
                 await seeder.SeedAsync();
+
+                var toolSeeder = scope.ServiceProvider.GetRequiredService<ToolDataSeeder>();
+                await toolSeeder.SeedAsync();
             }
 
             // Configure the HTTP request pipeline.
