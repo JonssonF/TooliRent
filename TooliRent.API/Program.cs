@@ -15,6 +15,7 @@ using TooliRent.Infrastructure.Seed;
 using TooliRent.Application.Tools;
 using TooliRent.Infrastructure.Tools;
 using TooliRent.Domain.Tools;
+using System.Text.Json.Serialization;
 
 namespace TooliRent.API
 {
@@ -29,7 +30,13 @@ namespace TooliRent.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers()
+                .AddJsonOptions(x =>
+                {
+                    x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                });
 
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
