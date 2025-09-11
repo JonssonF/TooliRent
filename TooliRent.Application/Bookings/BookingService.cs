@@ -86,18 +86,35 @@ namespace TooliRent.Application.Bookings
             return (true, null, entity != null ? ToDetailsDto(entity) : null);
         }
 
-        public Task<List<BookingListItemDto>> GetMineAsync(string memberId, CancellationToken cancellationToken)
+        public async Task<List<BookingListItemDto>> GetMineAsync(string memberId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var entities = await _bookingRepo.GetForMemberAsync(memberId, cancellationToken);
+            return entities.Select(ToListItemDto).ToList();
         }
 
-        public Task<BookingDetailsDto?> GetMineByIdAsync(int id, string memberId, CancellationToken cancellationToken)
+        public async Task<BookingDetailsDto?> GetMineByIdAsync(int id, string memberId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var entity = await _bookingRepo.GetByIdForMemberAsync(id, memberId, cancellationToken);
+            return entity != null ? ToDetailsDto(entity) : null;
         }
-        public Task<(bool Ok, string? Error)> CancelAsync(int id, string memberId, CancellationToken cancellationToken)
+        public async Task<(bool Ok, string? Error)> CancelAsync(int id, string memberId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var booking = await _bookingRepo.GetAggregateForUpdateForMemberAsync(id, memberId, cancellationToken);
+            if (booking == null)
+            {
+                return (false, "Booking not found.");
+            }
+            if (booking.Status == BookingStatus.Cancelled)
+            {
+                return (false, "Booking is already cancelled.");
+            }
+            if (DateTime.UtcNow >= booking.StartDate)
+            {
+                return (false, "Cannot cancel a booking that has already started or passed.");
+            }
+            booking.Status = BookingStatus.Cancelled;
+            await _bookingRepo.SaveChangesAsync(cancellationToken);
+            return (true, null);
         }
     }
 }
