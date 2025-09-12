@@ -68,5 +68,44 @@ namespace TooliRent.Infrastructure.Tools
                 ))
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<IReadOnlyList<ToolAvailabilityRow>> GetAvailabilityAsync(DateTime startDate, DateTime endDate, string? search, int? categoryId, CancellationToken cancellationToken)
+        {
+            var blockingStatuses = new[] { BookingStatus.Pending, BookingStatus.Active };
+
+            var tools = _context.Tools
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim().ToLower();
+                tools = tools.Where(t =>
+                   t.Name.ToLower().Contains(s) ||
+                   (t.Description ?? string.Empty).ToLower().Contains(s) ||
+                   t.Manufacturer.ToLower().Contains(s) ||
+                   (t.SerialNumber ?? string.Empty).ToLower().Contains(s));
+            }
+            if (categoryId.HasValue)
+            {
+                tools = tools.Where(t => t.CategoryId == categoryId.Value);
+            }
+
+            return await tools
+                .OrderBy(t => t.Name)
+                .Select(t => new ToolAvailabilityRow(
+                    t.Id,
+                    t.Name,
+                    t.Category != null ? t.Category.Name : null,
+                    t.Status,
+                    t.PricePerDay,
+                    // Read up on positionarguments, couldnt define the boolean variable directly in the select. (AvailableInPeriod = ...)
+                    !_context.Bookings.Any(b =>
+                        blockingStatuses.Contains(b.Status) &&
+                        b.StartDate < endDate && b.EndDate > startDate &&
+                        b.Items.Any(i => i.ToolId == t.Id))
+                ))
+                .ToListAsync(cancellationToken);
+        }
     }
 }
