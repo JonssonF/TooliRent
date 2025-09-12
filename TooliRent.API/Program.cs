@@ -16,6 +16,12 @@ using TooliRent.Application.Tools;
 using TooliRent.Infrastructure.Tools;
 using TooliRent.Domain.Tools;
 using System.Text.Json.Serialization;
+using FluentValidation;
+using TooliRent.Application.Bookings.Validation;
+using TooliRent.Application.Users.Mapping;
+using TooliRent.Application.Bookings;
+using TooliRent.Domain.Interfaces;
+using TooliRent.Infrastructure.Bookings;
 
 namespace TooliRent.API
 {
@@ -45,13 +51,19 @@ namespace TooliRent.API
             // Repositories
             builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
             builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IToolService, ToolService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+
+            // Validators
+            builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);
 
             // AutoMapper
-            builder.Services.AddAutoMapper(typeof(TooliRent.Application.Mapping.UserMappingProfile).Assembly);
+            builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
 
             // Seeding
             builder.Services.AddScoped<ToolDataSeeder>();
