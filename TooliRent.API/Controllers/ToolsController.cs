@@ -8,6 +8,7 @@ namespace TooliRent.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Member")]
     public sealed class ToolsController : ControllerBase
     {
         private readonly IToolService _service;
@@ -18,8 +19,6 @@ namespace TooliRent.API.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-
         public async Task<ActionResult<IReadOnlyList<ToolListItemDto>>> Get(
             [FromQuery] string? search = null,
             [FromQuery] int? categoryId = null,
