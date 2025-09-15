@@ -22,6 +22,7 @@ using TooliRent.Application.Users.Mapping;
 using TooliRent.Application.Bookings;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Bookings;
+using TooliRent.Infrastructure.Loans;
 
 namespace TooliRent.API
 {
@@ -53,6 +54,7 @@ namespace TooliRent.API
             builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
             builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
