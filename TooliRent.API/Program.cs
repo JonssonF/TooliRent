@@ -23,6 +23,7 @@ using TooliRent.Application.Bookings;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Bookings;
 using TooliRent.Infrastructure.Loans;
+using TooliRent.Application.Loans;
 
 namespace TooliRent.API
 {
@@ -61,6 +62,7 @@ namespace TooliRent.API
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IToolService, ToolService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<ILoanService, LoanService>();
 
             // Validators
             builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);

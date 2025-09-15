@@ -51,7 +51,10 @@ namespace TooliRent.Application.Loans
             {
                 var tool = bi.Tool!;
                 if (tool.Status != ToolStatus.Available)
+                {
                     throw new InvalidOperationException($"Tool {tool.Id} is {tool.Status}.");
+                }
+                bi.Tool!.Status = ToolStatus.Rented;
             }
 
             var loan = new Loan
@@ -60,12 +63,9 @@ namespace TooliRent.Application.Loans
                 MemberId = booking.MemberId,
                 PickUpAt = now,
                 DueAt = booking.EndDate,
-                Items = booking.Items.Select(i => new LoanItem { ToolId = i.ToolId }).ToList()
+                Items = booking.Items.Select(i => new LoanItem {ToolId = i.ToolId}).ToList()
             };
             
-            foreach (var li in loan.Items)
-                li.Tool!.Status = ToolStatus.Rented;
-
             var oldStatus = booking.Status.ToString();
             booking.Status = BookingStatus.Active;
 
@@ -87,17 +87,23 @@ namespace TooliRent.Application.Loans
             // Load loan with items and booking
             var loan = await _loans.GetWithItemsAndBookingAsync(cmd.LoanId, cancellationToken);
             if (loan is null)
+            {
                 throw new KeyNotFoundException("Loan not found.");
-
+            }
             if (!asAdmin && loan.MemberId != userId)
+            {
                 throw new UnauthorizedAccessException("You are not allowed to return this loan.");
-
+            }
             if (loan.ReturnedAt is not null)
+            {
                 throw new InvalidOperationException("Loan already returned.");
+            }
 
             var booking = loan.Booking!;
             if (booking.Status != BookingStatus.Active)
+            {
                 throw new InvalidOperationException($"Booking must be Active (was {booking.Status}).");
+            }
 
             var now = DateTime.UtcNow;
                 
@@ -113,7 +119,10 @@ namespace TooliRent.Application.Loans
             // Update tool statuses
             foreach (var li in loan.Items)
             {
-                li.Tool!.Status = ToolStatus.Available;
+                if (li.Tool is not null)
+                {
+                    li.Tool!.Status = ToolStatus.Available;
+                }
             }
 
             var oldStatus = booking.Status.ToString();
