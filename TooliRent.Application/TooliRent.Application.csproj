@@ -19,10 +19,4 @@
     <ProjectReference Include="..\TooliRent.Domain\TooliRent.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Loans\Commands\" />
-    <Folder Include="Loans\Validation\" />
-    <Folder Include="Loans\Responses\" />
-  </ItemGroup>
-
 </Project>

@@ -96,5 +96,13 @@ namespace TooliRent.Infrastructure.Bookings
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<Booking?> GetWithItemsAndToolsAsync(int bookingId, CancellationToken cancellationToken)
+        {
+            return await _context.Bookings
+                .Include(b => b.Items)
+                    .ThenInclude(bi => bi.Tool)
+                .FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
+        }
     }
 }
