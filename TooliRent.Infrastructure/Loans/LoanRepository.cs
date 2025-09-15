@@ -38,6 +38,8 @@ namespace TooliRent.Infrastructure.Loans
             _context.Loans.Update(loan);
             return Task.CompletedTask;
         }
+
+        // Get all active loans (not returned) Admin view
         public async Task<IReadOnlyList<Loan>> GetAllActiveLoansAsync()
         {
             return await _context.Loans
@@ -46,7 +48,7 @@ namespace TooliRent.Infrastructure.Loans
                 .Where(l => l.ReturnedAt == null)
                 .ToListAsync();
         }
-
+        // Get all overdue loans (not returned and past due date) Admin view
         public async Task<IReadOnlyList<Loan>> GetAllOverdueLoansAsync()
         {
             var now = DateTime.UtcNow;
@@ -55,6 +57,15 @@ namespace TooliRent.Infrastructure.Loans
                 .Include(l => l.Booking)
                 .Where(l => l.ReturnedAt == null && l.DueAt < now)
                 .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<Loan>> GetActiveLoansByUserIdAsync(string userId, CancellationToken cancellationToken)
+        {
+            return await _context.Loans
+                .Include(l => l.Items).ThenInclude(li => li.Tool)
+                .Include(l => l.Booking)
+                .Where(l => l.ReturnedAt == null && l.MemberId == userId)
+                .ToListAsync(cancellationToken);
         }
     }
 }

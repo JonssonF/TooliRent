@@ -15,5 +15,6 @@ namespace TooliRent.Domain.Interfaces
         Task UpdateAsync(Loan loan, CancellationToken cancellationToken);
         Task<IReadOnlyList<Loan>> GetAllActiveLoansAsync();
         Task<IReadOnlyList<Loan>> GetAllOverdueLoansAsync();
+        Task<IReadOnlyList<Loan>> GetActiveLoansByUserIdAsync(string userId, CancellationToken cancellationToken);
     }
 }

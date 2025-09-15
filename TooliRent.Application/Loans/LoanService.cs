@@ -165,5 +165,31 @@ namespace TooliRent.Application.Loans
                 return newlyMarked;
         }
 
+        public async Task<IReadOnlyList<ActiveLoanResponse>> GetActiveLoansByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            var loans = await _loans.GetActiveLoansByUserIdAsync(userId, cancellationToken);
+
+            return loans.Select(l => new ActiveLoanResponse(
+                l.Id,
+                l.BookingId,
+                l.PickUpAt,
+                l.DueAt,
+                l.IsOverDue,
+                l.Items.Select(i => i.ToolId).ToList()
+            )).ToList();
+        }
+
+        public async Task<IReadOnlyList<ActiveLoanResponse>> GetAllActiveLoansAsync(CancellationToken cancellationToken = default)
+        {
+            var loans = await _loans.GetAllActiveLoansAsync();
+            return loans.Select(l => new ActiveLoanResponse(
+                l.Id,
+                l.BookingId,
+                l.PickUpAt,
+                l.DueAt,
+                l.IsOverDue,
+                l.Items.Select(i => i.ToolId).ToList()
+            )).ToList();
+        }
     }
 }

@@ -58,5 +58,22 @@ namespace TooliRent.API.Controllers
             return Ok(new { updated });
         }
 
+        // Get active loans for the current user
+        [HttpGet("my-active")]
+        public async Task<IActionResult> GetMyActiveLoans(CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var response = await _loan.GetActiveLoansByUserIdAsync(userId, cancellationToken);
+            return Ok(response);
+        }
+
+        // Get all active loans
+        [HttpGet("all-active-loans")]
+        public async Task<IActionResult> GetAllActiveLoans(CancellationToken cancellationToken)
+        {
+            var response = await _loan.GetAllActiveLoansAsync(cancellationToken);
+            return Ok(response);
+        }
+
     }
 }
