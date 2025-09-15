@@ -1,9 +1,10 @@
 # 🛠️ TooliRent API
 
-TooliRent is a REST-based API for managing tool rentals in a makerspace environment.  
+## TooliRent is a REST-based API for managing tool rentals in a makerspace environment.  
 It is built with **ASP.NET Core**, **Entity Framework Core**, and follows modern software architecture and design patterns.  
 Even though this is a school project, it has been developed with the goal of resembling a real-world application as closely as possible, given my current knowledge level.
 To achieve this, the project uses a **feature-first approach** (sometimes called vertical slice architecture), where functionality is grouped by features (e.g. Bookings, Loans, Tools) instead of only being separated by technical layers. This helps keep related code together and makes the project easier to maintain and scale.
+
 ---
 
 ## 📖 Table of Contents
