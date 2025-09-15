@@ -15,7 +15,7 @@ The project also attempts to follow a **feature-first approach** (sometimes call
 - [Roadmap](#-roadmap)
 - [Getting Started](#-getting-started)
 - [Author](#-author)
-- [License](#-licence)
+- [License](#-license)
 ---
 
 ## 🚀 Features
