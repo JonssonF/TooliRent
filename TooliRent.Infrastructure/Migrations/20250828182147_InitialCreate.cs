@@ -347,6 +347,12 @@ namespace TooliRent.Infrastructure.Migrations
                 name: "IX_Tools_CategoryId",
                 table: "Tools",
                 column: "CategoryId");
+            // Detta lägger till ett index på både ReturnedAt och DueAt kolumnerna i Loans tabellen
+            // Detta låter spännande och det får jag fråga Petter mer om.
+            migrationBuilder.CreateIndex(
+                name: "IX_Loans_ReturnedAt_DueAt",
+                table: "Loans",
+                columns: new[] { "ReturnedAt", "DueAt" });
         }
 
         /// <inheritdoc />

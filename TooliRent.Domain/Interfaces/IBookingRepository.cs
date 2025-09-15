@@ -17,5 +17,6 @@ namespace TooliRent.Domain.Interfaces
         Task<Booking?> GetByIdAsync(int id, CancellationToken cancellationToken);
         Task<Booking> GetByIdForMemberAsync(int id, string memberId, CancellationToken cancellationToken);
         Task<List<Booking>> GetForMemberAsync(string memberId, CancellationToken cancellationToken);
+        Task<Booking?> GetWithItemsAndToolsAsync(int bookingId, CancellationToken cancellationToken);
     }
 }

@@ -22,6 +22,8 @@ using TooliRent.Application.Users.Mapping;
 using TooliRent.Application.Bookings;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Bookings;
+using TooliRent.Infrastructure.Loans;
+using TooliRent.Application.Loans;
 
 namespace TooliRent.API
 {
@@ -47,17 +49,20 @@ namespace TooliRent.API
             // DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
             // Repositories
             builder.Services.AddScoped<IUserReadRepository, UserReadRepository>();
             builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IToolService, ToolService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<ILoanService, LoanService>();
 
             // Validators
             builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);
