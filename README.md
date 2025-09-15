@@ -15,7 +15,7 @@ The project also attempts to follow a **feature-first approach** (sometimes call
 - [Roadmap](#-roadmap)
 - [Getting Started](#-getting-started)
 - [Author](#-author)
-
+- [License](#-licence)
 ---
 
 ## 🚀 Features
@@ -88,7 +88,7 @@ The project is based on **N-tier architecture** with clear separation of concern
 
 ---
 
-## 📡 API Endpoints
+## 🌐 API Endpoints
 
 ### 🔐 Authentication
 | Method | Endpoint        | Description                          | Status       |
@@ -155,6 +155,11 @@ Planned improvements and extra features:
 ---
 
 ## 👨‍💻 Author
-
-**Fredrik Jonsson**  
+- 🌐[GitHub – Fredrik Jonsson](https://github.com/JonssonF)
 📍 System Development Student at *Campus Varberg* (2023–2026)
+
+---
+
+## 📄 License
+
+MIT License – free to use, modify and distribute.
