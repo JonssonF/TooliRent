@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,13 @@ namespace TooliRent.API.Controllers
     public sealed class LoansController : ControllerBase
     {
         private readonly ILoanService _loan;
-
-        public LoansController(ILoanService loan)
+        private readonly IValidator<PickupCommand> _pickupValidator;
+        private readonly IValidator<ReturnCommand> _returnValidator;
+        public LoansController(ILoanService loan, IValidator<PickupCommand> pickupValidator, IValidator<ReturnCommand> returnValidator)
         {
             _loan = loan;
+            _pickupValidator = pickupValidator;
+            _returnValidator = returnValidator;
         }
 
         /*------------Helper Method to find correct User throu claims----------------*/
@@ -29,14 +33,21 @@ namespace TooliRent.API.Controllers
             ?? throw new InvalidOperationException("User ID claim not found.");
         /*---------------------------------------------------------------------------*/
 
+        // Old idea for admin check
         private bool IsAdmin() => User.IsInRole(Roles.Admin);
 
         // Pickup a tool (create a loan)
         [HttpPost("{bookingId:int}/pickup")]
         public async Task<IActionResult> Pickup([FromRoute] int bookingId, CancellationToken cancellationToken)
         {
+            var validationResult = await _pickupValidator.ValidateAsync(new PickupCommand(bookingId), cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
             var response = await _loan.PickupAsync(new PickupCommand(bookingId),
-                GetUserIdFromClaims()!, IsAdmin(), cancellationToken);
+                GetUserIdFromClaims()!, cancellationToken);
             return Ok(response);
         }
 
@@ -44,9 +55,14 @@ namespace TooliRent.API.Controllers
         [HttpPost("{loanId:int}/return")]
         public async Task<IActionResult> Return([FromRoute] int loanId, CancellationToken cancellationToken)
         {
-            var response = await _loan.ReturnAsync(new ReturnCommand(loanId),
-                GetUserIdFromClaims()!, IsAdmin(), cancellationToken);
-            return Ok(response);
+            var validationResult = await _returnValidator.ValidateAsync(new ReturnCommand(loanId), cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+                var response = await _loan.ReturnAsync(new ReturnCommand(loanId),
+                    GetUserIdFromClaims()!, cancellationToken);
+                return Ok(response);
         }
 
         // Mark overdue loans (admin only)
@@ -67,8 +83,9 @@ namespace TooliRent.API.Controllers
             return Ok(response);
         }
 
-        // Get all active loans
+        // Get all active loans (admin only)
         [HttpGet("all-active-loans")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllActiveLoans(CancellationToken cancellationToken)
         {
             var response = await _loan.GetAllActiveLoansAsync(cancellationToken);
