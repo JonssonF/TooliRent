@@ -10,6 +10,7 @@ namespace TooliRent.Domain.Enums
     {
         Available = 0,
         Rented = 1,
-        Maintenance = 2
+        Maintenance = 2,
+        AwaitingPickup = 3
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Entities;
+using TooliRent.Domain.Enums;
 
 namespace TooliRent.Domain.Interfaces
 {
@@ -18,5 +19,6 @@ namespace TooliRent.Domain.Interfaces
         Task<Booking> GetByIdForMemberAsync(int id, string memberId, CancellationToken cancellationToken);
         Task<List<Booking>> GetForMemberAsync(string memberId, CancellationToken cancellationToken);
         Task<Booking?> GetWithItemsAndToolsAsync(int bookingId, CancellationToken cancellationToken);
+        Task<int> SetToolsStatusAsync(IEnumerable<int> toolIds, ToolStatus status, CancellationToken cancellationToken = default);
     }
 }
