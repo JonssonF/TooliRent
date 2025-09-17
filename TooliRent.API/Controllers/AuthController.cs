@@ -37,7 +37,7 @@ namespace TooliRent.API.Controllers
             ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
         /*---------------------------------------------------------------------------*/
-
+        // Register a new user and get access token + refresh token
         [HttpPost("Register")]
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
@@ -49,7 +49,7 @@ namespace TooliRent.API.Controllers
                 EmailConfirmed = true,
                 FullName = request.FullName
             };
-            
+
             var create = await _users.CreateAsync(user, request.Password);
             if (!create.Succeeded)
             {
@@ -83,7 +83,7 @@ namespace TooliRent.API.Controllers
 
             return Ok(new AuthResponse(access, refresh, expires));
         }
-
+        // Login and get access token + refresh token
         [HttpPost("Login")]
         [AllowAnonymous]
         public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
@@ -120,10 +120,9 @@ namespace TooliRent.API.Controllers
             await _context.SaveChangesAsync();
             return Ok(new AuthResponse(access, refresh, expires));
         }
-
+        // Refresh access token using refresh token
         [HttpPost("Refresh")]
         [AllowAnonymous]
-
         public async Task<ActionResult<AuthResponse>> Refresh([FromBody] RefreshRequest request)
         {
             // Initial accesstoken is only stored locally, only refresh token is stored in DB.
@@ -145,7 +144,7 @@ namespace TooliRent.API.Controllers
 
             // Revoke current refresh token and create a new one (rotation)
             rt.Revoked = true;
-            
+
             var newRefresh = _tokens.CreateRefreshToken();
             _context.RefreshTokens.Add(new RefreshToken
             {
@@ -170,8 +169,7 @@ namespace TooliRent.API.Controllers
             return Ok(new AuthResponse(access, newRefresh, expires));
         }
 
-
-
+        // Get current user info
         [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult<object>> Me()
@@ -199,6 +197,35 @@ namespace TooliRent.API.Controllers
                 user.FullName,
                 Roles = roles
             });
+        }
+
+
+        // Logout (revoke refresh token)
+        [Authorize]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return BadRequest("Refresh token is required.");
+            }
+
+            var userId = GetUserIdFromClaims();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Unauthorized(new { error = "No user id claim in token." });
+            }
+
+            var rt = await _context.RefreshTokens
+                .FirstOrDefaultAsync(t => t.Token == request.RefreshToken && t.UserId == userId, cancellationToken);
+
+            if (rt is not null && !rt.Revoked)
+            {
+                rt.Revoked = true;
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            return NoContent();
         }
     }
 }
