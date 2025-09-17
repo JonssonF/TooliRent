@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
 using TooliRent.Application.Tools;
 using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Tools;
@@ -51,5 +52,15 @@ namespace TooliRent.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ToolDetailDto>> GetById([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var dto = await _service.GetByIdAsync(id, cancellationToken);
+            if (dto is null) return NotFound();
+            return Ok(dto);
+        }
     }
 }
+    
+

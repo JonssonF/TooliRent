@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Application.Tools.DTOs;
+using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Tools;
 
@@ -33,6 +34,7 @@ namespace TooliRent.Application.Tools
         }
 
         // Retrieves the availability of tools within a specified date range, applying optional filters such as search term and category ID.
+      
         public async Task<IReadOnlyList<ToolAvailabilityRow>> GetAvailabilityAsync(
             DateTime startDate, 
             DateTime endDate, 
@@ -53,5 +55,26 @@ namespace TooliRent.Application.Tools
         private static DateTime EnsureUtc(DateTime dt) =>
             dt.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(dt, DateTimeKind.Utc) :
                 dt.ToUniversalTime();
+
+        // Retrieves detailed information about a specific tool by its ID.
+        public async Task<ToolDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var row = await _toolRead.GetDetailByIdAsync(id, cancellationToken);
+            if (row is null) return null;
+
+            return new ToolDetailDto
+            {
+                Id = row.Id,
+                Name = row.Name,
+                Description = row.Description,
+                Manufacturer = row.Manufacturer,
+                CategoryName = row.CategoryName,
+                Status = row.Status,
+                LastMaintenanceDate = row.LastMaintenanceDate,
+                NextMaintenanceDate = row.NextMaintenanceDate,
+                PricePerDay = row.PricePerDay,
+                TotalLoans = row.TotalLoans
+            };
+        }
     }
 }
