@@ -10,9 +10,6 @@ namespace TooliRent.Application.Authentication
     public record LoginRequest(string Email, string Password);
     public record RefreshRequest(string RefreshToken);
     public record AuthResponse(string AccessToken, string RefreshToken, DateTime ExpiresUtc);
-    public record LogoutRequest
-    {
-        public string? RefreshToken { get; init; }
-        public bool AllDevices { get; init; } = false;
-    }
+    public record LogoutRequest(string RefreshToken);
+    
 }
