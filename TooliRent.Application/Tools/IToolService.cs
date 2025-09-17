@@ -17,10 +17,14 @@ public interface IToolService
         ToolStatus? status,
         CancellationToken cancellationToken);
 
+    
     Task<IReadOnlyList<ToolAvailabilityRow>> GetAvailabilityAsync(
         DateTime startDate,
         DateTime endDate,
         string? search,
         int? categoryId,
         CancellationToken cancellationToken);
+
+    // Retrieves detailed information about a specific tool by its ID.
+    Task<ToolDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 }

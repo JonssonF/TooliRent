@@ -56,30 +56,5 @@ namespace TooliRent.API.Controllers
                 roles = await _users.GetRolesAsync(user)
             });
         }
-
-        
-
-        // Inte bästa sättet att få med rollerna i en user lista då det blir flera anrop till DB, undersök andra sätt att lösa detta på.
-
-        /*[HttpGet]
-        public async Task<IActionResult> GetUsers()
-        {
-            var users = _users.Users.ToList();
-
-            var result = new List<object>();
-            foreach(var u in users)
-            {
-                var roles = await _users.GetRolesAsync(u);
-                result.Add(new
-                {
-                    u.Id,
-                    u.FullName,
-                    u.Email,
-                    Roles = roles
-                });
-            }
-
-            return Ok(result);
-        }*/
     }
 }

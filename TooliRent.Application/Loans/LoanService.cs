@@ -50,7 +50,7 @@ namespace TooliRent.Application.Loans
             foreach (var bi in booking.Items)
             {
                 var tool = bi.Tool!;
-                if (tool.Status != ToolStatus.Available)
+                if (tool.Status != ToolStatus.AwaitingPickup)
                 {
                     throw new InvalidOperationException($"Tool {tool.Id} is {tool.Status}.");
                 }
@@ -121,7 +121,11 @@ namespace TooliRent.Application.Loans
             {
                 if (li.Tool is not null)
                 {
-                    li.Tool!.Status = ToolStatus.Available;
+                    li.Tool.LastMaintenanceDate = now;
+
+                    li.Tool.NextMaintenanceDate = now.AddMonths(6);
+
+                    li.Tool!.Status = ToolStatus.Maintenance;
                 }
             }
 

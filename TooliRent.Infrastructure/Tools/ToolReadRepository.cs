@@ -20,6 +20,7 @@ namespace TooliRent.Infrastructure.Tools
             _context = context;
         }
 
+        // Returns the count of tools that exist in the database from the provided list of tool IDs.
         public Task<int> CountExistingAsync(IEnumerable<int> toolIds, CancellationToken cancellationToken)
         {
             var ids = toolIds.Distinct().ToList();
@@ -63,7 +64,9 @@ namespace TooliRent.Infrastructure.Tools
                     t.Id,
                     t.Name,
                     t.Category != null ? t.Category.Name : null,
-                    t.Status,
+                    (t.LastMaintenanceDate.HasValue && t.LastMaintenanceDate.Value.Date == DateTime.UtcNow.Date)
+                    ? ToolStatus.Maintenance
+                    : t.Status,
                     t.PricePerDay
                 ))
                 .ToListAsync(cancellationToken);
@@ -106,6 +109,27 @@ namespace TooliRent.Infrastructure.Tools
                         b.Items.Any(i => i.ToolId == t.Id))
                 ))
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<ToolDetailRow?> GetDetailByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var query =
+                from t in _context.Tools.AsNoTracking()
+                where t.Id == id
+                select new ToolDetailRow(
+                    t.Id,
+                    t.Name,
+                    t.Description,
+                    t.Manufacturer,
+                    t.Category != null ? t.Category.Name : null,
+                    t.Status,
+                    t.LastMaintenanceDate,
+                    t.NextMaintenanceDate,
+                    t.PricePerDay,
+                    _context.LoanItems.Count(li => li.ToolId == t.Id) // TotalLoans for this tool
+                );
+
+            return await query.FirstOrDefaultAsync(cancellationToken);
         }
     }
 }

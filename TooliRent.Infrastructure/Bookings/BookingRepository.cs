@@ -53,9 +53,12 @@ namespace TooliRent.Infrastructure.Bookings
         public Task<bool> AnyOverlappingAsync(IEnumerable<int> toolIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, int? excludeBookingId = null)
         {
             var ids = toolIds.Distinct().ToList();
-                return _context.Bookings
+
+            var blockingStatuses = new[] { BookingStatus.Pending, BookingStatus.Active};
+
+            return _context.Bookings
                     .AsNoTracking()
-                    .Where(b => b.Status != BookingStatus.Cancelled)
+                    .Where(b => blockingStatuses.Contains(b.Status))
                     .Where(b => excludeBookingId == null || b.Id != excludeBookingId)
                     .Where(b => b.StartDate < endDate && startDate < b.EndDate)
                     .Where(b => b.Items.Any(i => ids.Contains(i.ToolId)))
@@ -103,6 +106,20 @@ namespace TooliRent.Infrastructure.Bookings
                 .Include(b => b.Items)
                     .ThenInclude(bi => bi.Tool)
                 .FirstOrDefaultAsync(b => b.Id == bookingId, cancellationToken);
+        }
+
+        // Helper method to set status of multiple tools.
+        public async Task<int> SetToolsStatusAsync(IEnumerable<int> toolIds, ToolStatus status, CancellationToken cancellationToken = default)
+        {
+            var ids = toolIds.Distinct().ToList();
+            var tools = await _context.Tools
+                .Where(t => ids.Contains(t.Id))
+                .ToListAsync(cancellationToken);
+
+            foreach (var t in tools)
+                t.Status = status;
+
+            return await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

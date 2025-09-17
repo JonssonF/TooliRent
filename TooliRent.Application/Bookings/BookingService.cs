@@ -76,11 +76,14 @@ namespace TooliRent.Application.Bookings
                 Items = requestedTools.Select(tid => new BookingItem
                 {
                     ToolId = tid
+                    
                 }).ToList()
             };
 
             await _bookingRepo.AddAsync(booking, cancellationToken);
             await _bookingRepo.SaveChangesAsync(cancellationToken);
+
+            await _bookingRepo.SetToolsStatusAsync(requestedTools, ToolStatus.AwaitingPickup, cancellationToken);
 
             var entity = await _bookingRepo.GetByIdForMemberAsync(booking.Id, memberId, cancellationToken);
             return (true, null, entity != null ? ToDetailsDto(entity) : null);
