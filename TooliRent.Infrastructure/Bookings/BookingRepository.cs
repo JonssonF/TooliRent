@@ -53,9 +53,12 @@ namespace TooliRent.Infrastructure.Bookings
         public Task<bool> AnyOverlappingAsync(IEnumerable<int> toolIds, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, int? excludeBookingId = null)
         {
             var ids = toolIds.Distinct().ToList();
-                return _context.Bookings
+
+            var blockingStatuses = new[] { BookingStatus.Pending, BookingStatus.Active};
+
+            return _context.Bookings
                     .AsNoTracking()
-                    .Where(b => b.Status != BookingStatus.Cancelled)
+                    .Where(b => blockingStatuses.Contains(b.Status))
                     .Where(b => excludeBookingId == null || b.Id != excludeBookingId)
                     .Where(b => b.StartDate < endDate && startDate < b.EndDate)
                     .Where(b => b.Items.Any(i => ids.Contains(i.ToolId)))

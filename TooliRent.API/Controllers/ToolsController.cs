@@ -9,7 +9,7 @@ namespace TooliRent.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Member")]
+    [Authorize(Roles = "Admin, Member")]
     public sealed class ToolsController : ControllerBase
     {
         private readonly IToolService _service;
