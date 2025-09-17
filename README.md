@@ -24,7 +24,7 @@ The project also attempts to follow a **feature-first approach** (sometimes call
 - ✅ Register as a **Member**
 - ✅ Login and receive a JWT token
 - ✅ Refresh token flow
-- ⏳ Logout *(Coming Soon)*
+- ✅ Logout
 - Roles:
   - **Member**
   - **Admin**
@@ -32,7 +32,7 @@ The project also attempts to follow a **feature-first approach** (sometimes call
 ### Tools
 - ✅ List all available tools
 - ✅ Filter tools by category, status, and availability
-- ⏳ View detailed information about specific tools *(Coming Soon)*
+- ✅ View detailed information about specific tools
 
 ### Bookings
 - ✅ Create a booking (one or multiple tools for a period)
