@@ -96,7 +96,7 @@ The project is based on **N-tier architecture** with clear separation of concern
 | POST   | `/auth/register`| Register a new member                | ✅ Implemented |
 | POST   | `/auth/login`   | Login with email & password, returns JWT token | ✅ Implemented |
 | POST   | `/auth/refresh` | Refresh JWT token                    | ✅ Implemented |
-| POST   | `/auth/logout`  | Logout user                          | ⏳ Coming Soon |
+| POST   | `/auth/logout`  | Logout user                          | ✅ Implemented |
 
 ### 🛠️ Tools
 | Method | Endpoint        | Description                          | Status       |
