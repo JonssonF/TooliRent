@@ -24,13 +24,13 @@ namespace TooliRent.Application.Loans
             _uow = uow;
         }
 
-        public async Task<LoanResponse> PickupAsync(PickupCommand cmd, string userId, bool asAdmin = false, CancellationToken cancellationToken = default)
+        public async Task<LoanResponse> PickupAsync(PickupCommand cmd, string userId, CancellationToken cancellationToken = default)
         {
             var booking = await _bookings.GetWithItemsAndToolsAsync(cmd.BookingId, cancellationToken);
             if (booking is null)
                 throw new KeyNotFoundException("Booking not found.");
 
-            if (!asAdmin && booking.MemberId != userId)
+            if (booking.MemberId != userId)
                 throw new UnauthorizedAccessException("You are not allowed to pickup this booking.");
 
             if (booking.Status != BookingStatus.Pending)
@@ -82,7 +82,7 @@ namespace TooliRent.Application.Loans
             );
         }
         
-        public async Task<LoanResponse> ReturnAsync(ReturnCommand cmd, string userId, bool asAdmin = false, CancellationToken cancellationToken = default)
+        public async Task<LoanResponse> ReturnAsync(ReturnCommand cmd, string userId, CancellationToken cancellationToken = default)
         {
             // Load loan with items and booking
             var loan = await _loans.GetWithItemsAndBookingAsync(cmd.LoanId, cancellationToken);
@@ -90,7 +90,7 @@ namespace TooliRent.Application.Loans
             {
                 throw new KeyNotFoundException("Loan not found.");
             }
-            if (!asAdmin && loan.MemberId != userId)
+            if (loan.MemberId != userId)
             {
                 throw new UnauthorizedAccessException("You are not allowed to return this loan.");
             }
