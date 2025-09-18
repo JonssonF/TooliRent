@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Application.Users;
+using TooliRent.Application.Users.DTOs;
+using TooliRent.Domain.Identity;
 using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.API.Controllers
@@ -11,50 +13,54 @@ namespace TooliRent.API.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
-        private readonly UserManager<AppUser> _users;
-        private readonly RoleManager<IdentityRole> _roles;
+        private readonly IAdminUserService _admin;
 
-        public AdminController(UserManager<AppUser> users, RoleManager<IdentityRole> roles)
+        public AdminController(IAdminUserService admin)
         {
-            _users = users;
-            _roles = roles;
+            _admin = admin;
         }
 
-        [HttpPost("Promote")]
-        public async Task<ActionResult> Promote([FromBody] PromoteUserRequest request)
+        [HttpPost("promote")]
+        public async Task<IActionResult> Promote([FromBody] PromoteUserRequest request, CancellationToken ct = default)
         {
-            var user = await _users.FindByEmailAsync(request.Email);
-            if (user is null)
+            var (ok, status, error, data) = await _admin.PromoteAsync(request, ct);
+            if (!ok) return StatusCode((int)status, new { error });
+
+            return StatusCode((int)status, new
             {
-                return NotFound("User not found.");
-            }
-            if (!await _roles.RoleExistsAsync("Admin"))
-            {
-                return BadRequest("Role 'Admin' does not exist.");
-            }
-            if (!await _users.IsInRoleAsync(user, "Admin"))
-            {
-                var add = await _users.AddToRoleAsync(user, "Admin");
-                if (!add.Succeeded)
-                {
-                    return BadRequest(new { Errors = add.Errors.Select(e => e.Description) });
-                }
-            }
-            if (request.RemoveMemberRole && await _users.IsInRoleAsync(user, "Member"))
-            {
-                var rem = await _users.RemoveFromRoleAsync(user, "Member");
-                if (!rem.Succeeded)
-                {
-                    return BadRequest(new { Errors = rem.Errors.Select(e => e.Description) });
-                }
-            }
-            return Ok(new
-            {
-                message = $"Member with email {request.Email} promoted to Admin.",
-                user.Id,
-                user.FullName,
-                roles = await _users.GetRolesAsync(user)
+                message = $"User {data!.Email} promoted to Admin.",
+                user = data
             });
+        }
+
+        [HttpPost("demote")]
+        public async Task<IActionResult> Demote([FromBody] DemoteUserRequest request, CancellationToken ct = default)
+        {
+            var (ok, status, error, data) = await _admin.DemoteAsync(request, ct);
+            if (!ok) return StatusCode((int)status, new { error });
+
+            return StatusCode((int)status, new
+            {
+                message = $"Admin {data!.Email} demoted.",
+                user = data
+            });
+        }
+
+        [HttpPost("users/{id}/deactivate")]
+        public async Task<IActionResult> DeactivateUser([FromRoute] string id, CancellationToken ct = default)
+        {
+            var (ok, status, error, data) = await _admin.DeactivateAsync(id, ct);
+            if (!ok) return StatusCode((int)status, new { error });
+            return StatusCode((int)status, new {user = data});
+        }
+
+        [HttpPost("users/{id}/activate")]
+        public async Task<IActionResult> ActivateUser([FromRoute] string id, CancellationToken ct = default)
+        {
+            var (ok, status, error, data) = await _admin.ActivateAsync(id, ct);
+            if (!ok) return StatusCode((int)status, new { error });
+            return StatusCode((int)status, new { user = data });
         }
     }
 }
+

@@ -2,6 +2,9 @@
 using TooliRent.Infrastructure.Identity;
 using TooliRent.Application.Users;
 using FluentValidation;
+using TooliRent.Application.Users.DTOs;
+using System.Net;
+using TooliRent.Domain.Identity;
 
 namespace TooliRent.Infrastructure.Users
 {
@@ -15,57 +18,153 @@ namespace TooliRent.Infrastructure.Users
             _users = users;
             _roles = roles;
         }
-
-        public async Task<(bool ok, int status, string? error, PromoteUserResponse? data)> PromoteAsync(PromoteUserRequest request, CancellationToken cancellationToken)
+        // Promote a user to Admin role, optionally removing Member role
+        public async Task<(bool ok, HttpStatusCode status, string? error, AdminUserResult? data)> PromoteAsync(
+            PromoteUserRequest request,
+            CancellationToken cancellationToken = default)
         {
-            if(string.IsNullOrWhiteSpace(request.Email))
-                return (false, 400, "Email is required.", null);
+            var user = await _users.FindByEmailAsync(request.Email);
+            if (user is null) 
+            {
+                return (false, HttpStatusCode.NotFound, "User not found.", null);
+            }
 
+            if (!await _roles.RoleExistsAsync(Roles.Admin))
+            {
+                return (false, HttpStatusCode.BadRequest, $"Role '{Roles.Admin}' does not exist.", null);
+            }
+
+            if (!await _users.IsInRoleAsync(user, Roles.Admin))
+            {
+                var add = await _users.AddToRoleAsync(user, Roles.Admin);
+                if (!add.Succeeded)
+                    return (false, HttpStatusCode.BadRequest, string.Join("; ", add.Errors.Select(e => e.Description)), null);
+            }
+
+            if (request.RemoveMemberRole && await _users.IsInRoleAsync(user, Roles.Member))
+            {
+                var rem = await _users.RemoveFromRoleAsync(user, Roles.Member);
+                if (!rem.Succeeded)
+                    return (false, HttpStatusCode.BadRequest, string.Join("; ", rem.Errors.Select(e => e.Description)), null);
+            }
+
+            var roles = await _users.GetRolesAsync(user);
+            var suspended = await _users.IsLockedOutAsync(user);
+            var dto = new AdminUserResult(
+                user.Id,
+                user.Email!,
+                user.FullName,
+                roles.ToList(),
+                suspended
+                );
+
+            return (true, HttpStatusCode.OK, null, dto);
+        }
+        // Promote a user to Admin role, optionally removing Member role
+        public async Task<(bool ok, HttpStatusCode status, string? error, AdminUserResult? data)> DemoteAsync(
+            DemoteUserRequest request,
+            CancellationToken cancellationToken = default)
+        {
             var user = await _users.FindByEmailAsync(request.Email);
             if (user is null)
             {
-                return (false, 404, "User not found.", null);
+                return (false, HttpStatusCode.NotFound, "User not found.", null);
             }
 
-            if (!await _roles.RoleExistsAsync("Admin"))
+            if (!await _roles.RoleExistsAsync(Roles.Admin))
             {
-                return (false, 400, "Role 'Admin' does not exist.", null);
+                return (false, HttpStatusCode.BadRequest, $"Role '{Roles.Admin}' does not exist.", null);
             }
 
-            if (!await _users.IsInRoleAsync(user, "Admin"))
+            if (await _users.IsInRoleAsync(user, Roles.Admin))
             {
-                var add = await _users.AddToRoleAsync(user, "Admin");
-                if(!add.Succeeded)
-                {
-                    var errors = string.Join(", ", add.Errors.Select(e => e.Description));
-                    return (false, 400, errors, null);
+                var rem = await _users.RemoveFromRoleAsync(user, Roles.Admin);
+                if (!rem.Succeeded) 
+                { 
+                    return (false, HttpStatusCode.BadRequest, string.Join("; ", rem.Errors.Select(e => e.Description)), null);
                 }
             }
-            
-            if(request.RemoveMemberRole && await _users.IsInRoleAsync(user, "Member"))
+
+            if (request.AddMemberRole && !await _users.IsInRoleAsync(user, Roles.Member))
             {
-                var rem = await _users.RemoveFromRoleAsync(user, "Member");
-                if (!rem.Succeeded)
+                if (!await _roles.RoleExistsAsync(Roles.Member))
                 {
-                    var errors = string.Join(", ", rem.Errors.Select(e => e.Description));
-                    return (false, 400, errors, null);
+                    return (false, HttpStatusCode.BadRequest, $"Role '{Roles.Member}' does not exist.", null);
+                }
+
+                var add = await _users.AddToRoleAsync(user, Roles.Member);
+                if (!add.Succeeded)
+                {
+                    return (false, HttpStatusCode.BadRequest, string.Join("; ", add.Errors.Select(e => e.Description)), null);
                 }
             }
-            
+
             var roles = await _users.GetRolesAsync(user);
-
-            var response = new PromoteUserResponse(
-            
+            var suspended = await _users.IsLockedOutAsync(user);
+            var dto = new AdminUserResult(
                 user.Id,
-                user.Email ?? string.Empty,
+                user.Email!,
                 user.FullName,
-                roles.OrderBy(r => r).ToArray()
-            );
+                roles.ToList(),
+                suspended
+                );
 
-            return (true, 200, null, response);
+            return (true, HttpStatusCode.OK, null, dto);
         }
 
+        // Deactivate a user by setting lockout
+        public async Task<(bool ok, HttpStatusCode status, string? error, AdminUserResult? data)> DeactivateAsync(
+            string userId,
+            CancellationToken cancellationToken = default)
+        {
+            var user = await _users.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return (false, HttpStatusCode.NotFound, "User not found.", null);
+            }
 
+            await _users.SetLockoutEnabledAsync(user, true);
+            await _users.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
 
+            var roles = await _users.GetRolesAsync(user);
+            var suspended = await _users.IsLockedOutAsync(user);
+
+            var dto = new AdminUserResult(
+                user.Id,
+                user.Email!,
+                user.FullName,
+                roles.ToList(),
+                suspended
+                );
+
+            return (true, HttpStatusCode.NoContent, null, dto);
+        }
+
+        // Activate a user by removing lockout
+        public async Task<(bool ok, HttpStatusCode status, string? error, AdminUserResult? data)> ActivateAsync(
+            string userId,
+            CancellationToken cancellationToken = default)
+        {
+            var user = await _users.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return (false, HttpStatusCode.NotFound, "User not found.", null);
+            }
+
+            await _users.SetLockoutEndDateAsync(user, null);
+
+            var roles = await _users.GetRolesAsync(user);
+            var suspended = await _users.IsLockedOutAsync(user);
+
+            var dto = new AdminUserResult(
+                user.Id,
+                user.Email!,
+                user.FullName,
+                roles.ToList(),
+                suspended
+                );
+
+            return (true, HttpStatusCode.NoContent, null, dto);
+        }
     }
 }

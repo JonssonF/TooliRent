@@ -53,7 +53,12 @@ namespace TooliRent.Infrastructure.Users
                 .OrderBy(u => u.UserName)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(u => new UserRow(u.Id, u.Email, u.FullName, u.UserName))
+                .Select(u => new UserRow(
+                    u.Id,
+                    u.Email,
+                    u.FullName,
+                    u.UserName,
+                    u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow))
                 .ToListAsync(cancellationToken);
 
             return (rows, total);
@@ -72,7 +77,7 @@ namespace TooliRent.Infrastructure.Users
                                 where ids.Contains(ur.UserId)
                                 select new { ur.UserId, r.Name })
                     .ToListAsync(cancellationToken);
-
+            
             return roles
                 .GroupBy(x => x.UserId)
                 .ToDictionary(

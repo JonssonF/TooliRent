@@ -14,10 +14,11 @@ namespace TooliRent.Application.Users.Mapping
         public UserMappingProfile()
         {
             CreateMap<UserRow, UserDto>()
-                .ForCtorParam("Id", opt => opt.MapFrom(src => src.Id))
-                .ForCtorParam("Email", opt => opt.MapFrom(src => src.Email))
-                .ForCtorParam("FullName", opt => opt.MapFrom(src => src.FullName))
-                .ForMember("Roles", opt => opt.Ignore());
+                .ForCtorParam("Id",         opt => opt.MapFrom(src => src.Id))
+                .ForCtorParam("Email",      opt => opt.MapFrom(src => src.Email))
+                .ForCtorParam("FullName",   opt => opt.MapFrom(src => src.FullName))
+                .ForCtorParam("Suspended", opt => opt.MapFrom(src => src.Suspended))
+                .ForMember(d => d.Roles,         opt => opt.Ignore());
             //Roles is ignored because it is fetched through query in UsersController
         }
     }
