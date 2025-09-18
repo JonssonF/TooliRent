@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Users.DTOs
 {
-    public sealed record UserDto(
-    
+    public sealed record AdminUserResult(
         string Id,
         string Email,
-        string? FullName,
+        string FullName,
+        IReadOnlyList<string> Roles,
         bool Suspended
-    )
-    {
-        public IReadOnlyList<string> Roles { get; init; } = Array.Empty<string>();
-    }
+        );
 }

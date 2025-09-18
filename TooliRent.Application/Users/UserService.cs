@@ -1,7 +1,9 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TooliRent.Application.Users.DTOs;
 using TooliRent.Domain.Common;
@@ -12,58 +14,58 @@ namespace TooliRent.Application.Users
     public sealed class UserService : IUserService
     {
         private readonly IUserReadRepository _repo;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserReadRepository repo)
+        public UserService(IUserReadRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         // Get a page of users with optional search and role filtering
         public async Task<PagedResult<UserDto>> GetUsersPageAsync(int page, int pageSize, string? search, string? role, CancellationToken cancellationToken)
         {
+            // Gets the rows and total count from the repository
             var (rows, total) = await _repo.GetUsersPageAsync(page, pageSize, search, role, cancellationToken);
 
-            var roleMap = await _repo.GetRolesForUsersAsync(rows.Select(r => r.Id), cancellationToken);
+            // Maps the rows to DTOs
+            var dtos = _mapper.Map<List<UserDto>>(rows);
 
-            var items = rows.Select(r => new UserDto
+            // Fetches roles for the users and assigns them to the DTOs
+            var rolesMap = await _repo.GetRolesForUsersAsync(rows.Select(r => r.Id), cancellationToken);
+            for (int i = 0; i < dtos.Count; i++)
             {
-                Id = r.Id,
-                Email = r.Email,
-                FullName = r.FullName,
-                Roles = roleMap.TryGetValue(r.Id, out var roles) ? roles : new List<string>()
-            }).ToList();
+                var d = dtos[i];
+                if (rolesMap.TryGetValue(d.Id, out var rs))
+                    dtos[i] = d with { Roles = rs };
+            }
 
-            return new PagedResult<UserDto>(items, total, page, pageSize);
+            return new PagedResult<UserDto>(dtos, total, page, pageSize);
         }
 
         // Get all users (up to 'max') sorted by their highest priority role and then by name/email
         public async Task<IReadOnlyList<UserDto>> GetAllUsersSortedByRoleAsync(int max, CancellationToken cancellationToken)
         {
-            var (rows, _) = _repo.GetUsersPageAsync(1, max, null, null, cancellationToken).Result;
+            if (max < 1) max = 1;
 
-            var roleMap = await _repo.GetRolesForUsersAsync(rows.Select(r => r.Id), cancellationToken);
+            var (rows, _) = await _repo.GetUsersPageAsync(page: 1, pageSize: max, search: null, role: null, cancellationToken);
 
-            var items = rows.Select(r => new UserDto
+            var dtos = _mapper.Map<List<UserDto>>(rows);
+
+            var rolesMap = await _repo.GetRolesForUsersAsync(rows.Select(r => r.Id), cancellationToken);
+            for (int i = 0; i < dtos.Count; i++)
             {
-                Id = r.Id,
-                Email = r.Email ?? string.Empty,
-                FullName = r.FullName,
-                Roles = roleMap.TryGetValue(r.Id, out var roles) ? roles : new List<string>()
-            });
+                var d = dtos[i];
+                if (rolesMap.TryGetValue(d.Id, out var rs))
+                    dtos[i] = d with { Roles = rs };
+            }
+            static int Rank(IReadOnlyList<string> roles)
+                => roles.Contains("Admin") ? 0 : roles.Contains("Member") ? 1 : 2;
 
-            var sorted = items
-                .Select(u => new
-                {
-                    User = u,
-                    BestRolePriority = u.Roles.Select(RolePriority.GetPriority).DefaultIfEmpty(99).Min(),
-                    NameForSort = u.FullName ?? u.Email
-                })
-                .OrderBy(x => x.BestRolePriority)
-                .ThenBy(x => x.NameForSort)
-                .Select(x => x.User)
+            return dtos
+                .OrderBy(d => Rank(d.Roles))
+                .ThenBy(d => d.FullName ?? d.Email)
                 .ToList();
-
-            return sorted;
         }
     }
 }
