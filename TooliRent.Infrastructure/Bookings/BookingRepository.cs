@@ -119,7 +119,7 @@ namespace TooliRent.Infrastructure.Bookings
             foreach (var t in tools)
                 t.Status = status;
 
-            return await _context.SaveChangesAsync(cancellationToken);
+            return tools.Count;
         }
     }
 }

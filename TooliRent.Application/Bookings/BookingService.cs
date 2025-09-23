@@ -16,11 +16,13 @@ namespace TooliRent.Application.Bookings
     {
         private readonly IBookingRepository _bookingRepo;
         private readonly IToolReadRepository _toolRepo;
+        private readonly IUnitOfWork _uow;
 
-        public BookingService(IBookingRepository bookingRepo, IToolReadRepository toolRepo)
+        public BookingService(IBookingRepository bookingRepo, IToolReadRepository toolRepo, IUnitOfWork uow)
         {
             _bookingRepo = bookingRepo;
             _toolRepo = toolRepo;
+            _uow = uow;
         }
 
         private static BookingDetailsDto ToDetailsDto(Booking b) =>
@@ -81,9 +83,9 @@ namespace TooliRent.Application.Bookings
             };
 
             await _bookingRepo.AddAsync(booking, cancellationToken);
-            await _bookingRepo.SaveChangesAsync(cancellationToken);
-
             await _bookingRepo.SetToolsStatusAsync(requestedTools, ToolStatus.AwaitingPickup, cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken);
+
 
             var entity = await _bookingRepo.GetByIdForMemberAsync(booking.Id, memberId, cancellationToken);
             return (true, null, entity != null ? ToDetailsDto(entity) : null);
