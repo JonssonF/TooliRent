@@ -174,10 +174,65 @@ namespace TooliRent.API
                 app.UseSwaggerUI();
             }
 
+            app.Use(async (context, next) =>
+            {
+                var start = DateTime.UtcNow;
+                await next();
+
+                var elapsedTime = DateTime.UtcNow - start;
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine($"Request to {context.Request.Path} took {Math.Round(elapsedTime.TotalMilliseconds)} ms");
+                Console.ResetColor();
+            });
+
+            // Rate limiting
+            var requestLog = new Dictionary<string, List<DateTime>>();
+            int limit = 100;
+
+            app.Use(async (context, next) =>
+            {
+                var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                if(ip != null)
+                {
+                    if(!requestLog.ContainsKey(ip))
+                    {
+                        requestLog[ip] = new List<DateTime>();
+                    }
+                    var now = DateTime.UtcNow;
+
+                    requestLog[ip].RemoveAll(t => (now - t).TotalSeconds > 60);
+
+                    if (requestLog[ip].Count >= limit)
+                    {
+                        context.Response.StatusCode = 429; // Too Many Requests
+                        await context.Response.WriteAsync("Too many requests. Please try again later.");
+                        return;
+                    }
+
+                    requestLog[ip].Add(now);
+                }
+                await next();
+            });
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+
+            app.Use(async (context, next) =>
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Request: {DateTime.Now} : {context.Request.Method} - {context.Request.Path}");
+                Console.WriteLine($"From: {context.Request.Headers["X-Forwarded-For"].FirstOrDefault() 
+                    ?? context.Connection.RemoteIpAddress?.ToString() 
+                    ?? context.Connection.LocalIpAddress?.ToString() 
+                    ?? "unknown"} - {context.User?.Identity?.Name?.ToString() ?? "unknown"}");
+                Console.ResetColor();
+                await next();
+            });
+
+
+            
             //LETS GO!
             app.Run();
         }
