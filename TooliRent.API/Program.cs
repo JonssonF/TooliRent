@@ -25,6 +25,7 @@ using TooliRent.Application.Loans;
 using TooliRent.Application.Categories.Validation;
 using TooliRent.Infrastructure.Categories;
 using TooliRent.Application.Categories;
+using TooliRent.Application.Tools.Validation;
 
 namespace TooliRent.API
 {
@@ -67,10 +68,16 @@ namespace TooliRent.API
             builder.Services.AddScoped<ILoanService, LoanService>();
             builder.Services.AddScoped<IToolAdminService, ToolAdminService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            
             // Validators
-
-            builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);
-
+            builder.Services.AddValidatorsFromAssemblies(new[]
+            {
+                typeof(ToolCreateRequestValidator).Assembly,
+                typeof(ToolUpdateReqeustValidator).Assembly,
+                typeof(CategoryUpdateRequestValidator).Assembly,
+                typeof(CategoryCreateRequestValidator).Assembly,
+                typeof(BookingCreateRequestValidator).Assembly
+            });
 
 
             // AutoMapper

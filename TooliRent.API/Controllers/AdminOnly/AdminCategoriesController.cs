@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Application.Categories;
 using TooliRent.Application.Categories.DTOs;
 using TooliRent.Domain.Entities;
 
-namespace TooliRent.API.Controllers
+namespace TooliRent.API.Controllers.AdminOnly
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AdminCategoriesController : ControllerBase
     {
         private readonly ICategoryService _service;

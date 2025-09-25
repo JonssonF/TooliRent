@@ -43,18 +43,22 @@ namespace TooliRent.Infrastructure.Categories
                 .Where(c => c.Name == name && (excludeId == null || c.Id != excludeId))
                 .AnyAsync(cancellationToken);
         }
-
+        // Get all categories with the count of tools in each category
         public async Task<IReadOnlyList<CategoryRow>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .Select(c => new CategoryRow
-                (
+                // First projecting to an anonymous type to include the tool count
+                .Select(c => new
+                {
                     c.Id,
                     c.Name,
                     c.Description,
-                    _context.Tools.Count(t => t.CategoryId == c.Id)))
-                .OrderBy(c => c.Name)
+                    ToolCount = _context.Tools.Count(t => t.CategoryId == c.Id)
+                })
+                .OrderBy(x => x.Name)
+                // Projecting to CategoryRow DTO
+                .Select(x => new CategoryRow(x.Id, x.Name, x.Description, x.ToolCount))
                 .ToListAsync(cancellationToken);
         }
     }

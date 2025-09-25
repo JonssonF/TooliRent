@@ -6,7 +6,7 @@ using TooliRent.Application.Users.DTOs;
 using TooliRent.Domain.Identity;
 using TooliRent.Infrastructure.Identity;
 
-namespace TooliRent.API.Controllers
+namespace TooliRent.API.Controllers.AdminOnly
 {
     [ApiController]
     [Route("api/admin")]
