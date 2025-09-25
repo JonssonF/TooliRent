@@ -45,10 +45,10 @@ The project also attempts to follow a **feature-first approach** (sometimes call
 - ✅ Handle overdue returns
 
 ### Admin Functions
-- ⏳ CRUD operations for tools *(Coming Soon)*
-- ⏳ CRUD operations for tool categories *(Coming Soon)*
-- ⏳ Manage users (activate/deactivate) *(Coming Soon)*
-- ⏳ Rental and usage statistics *(Coming Soon)*
+- ✅ CRUD operations for tools *(Coming Soon)*
+- ✅ CRUD operations for tool categories *(Coming Soon)*
+- ✅ Manage users (activate/deactivate) *(Coming Soon)*
+- ✅ Rental and usage statistics *(Coming Soon)*
 
 ---
 
@@ -64,7 +64,7 @@ The project is based on **N-tier architecture** with clear separation of concern
 **Design patterns used:**
 - **Service Pattern** for business logic
 - **Repository Pattern** for data access
-
+- **Sliced Architecture** feature first layering 
 ---
 
 ## 📦 Technical Requirements
@@ -120,10 +120,10 @@ The project is based on **N-tier architecture** with clear separation of concern
 ### 👑 Admin
 | Method | Endpoint                   | Description                          | Status       |
 |--------|----------------------------|--------------------------------------|--------------|
-| POST   | `/admin/tools`             | CRUD operations for tools            | ⏳ Coming Soon |
-| POST   | `/admin/categories`        | CRUD operations for tool categories  | ⏳ Coming Soon |
-| PATCH  | `/admin/users/{id}/activate`| Activate/deactivate a user           | ⏳ Coming Soon |
-| GET    | `/admin/statistics`        | Rental and usage statistics          | ⏳ Coming Soon | 
+| POST   | `/admin/tools`             | CRUD operations for tools            | ✅ Implemented |
+| POST   | `/admin/categories`        | CRUD operations for tool categories  | ✅ Implemented |
+| PATCH  | `/admin/users/{id}/activate`| Activate/deactivate a user           | ✅ Implemented |
+| GET    | `/admin/statistics`        | Rental and usage statistics          | ✅ Implemented | 
 
 ---
 
