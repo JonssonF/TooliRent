@@ -4,7 +4,7 @@ using TooliRent.Application.Users;
 using TooliRent.Application.Users.DTOs;
 using TooliRent.Domain.Common;
 
-namespace TooliRent.API.Controllers
+namespace TooliRent.API.Controllers.AdminOnly
 {
     [Route("api/[controller]")]
     [ApiController]

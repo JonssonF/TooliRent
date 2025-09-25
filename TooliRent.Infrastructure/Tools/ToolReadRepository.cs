@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
+using TooliRent.Domain.Interfaces;
 using TooliRent.Domain.Tools;
 using TooliRent.Infrastructure.Persistence;
 

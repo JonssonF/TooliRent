@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Entities;
+using TooliRent.Domain.Tools;
 
-namespace TooliRent.Domain.Tools;
+namespace TooliRent.Domain.Interfaces;
 
 public interface IToolReadRepository
 {

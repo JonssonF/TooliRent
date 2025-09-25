@@ -7,14 +7,12 @@ using TooliRent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using TooliRent.Infrastructure.Identity;
 using System.Text;
-using TooliRent.Domain.Users;
 using TooliRent.Infrastructure.Users;
 using TooliRent.Application.Users;
 using TooliRent.Infrastructure.Authentication;
 using TooliRent.Infrastructure.Seed;
 using TooliRent.Application.Tools;
 using TooliRent.Infrastructure.Tools;
-using TooliRent.Domain.Tools;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using TooliRent.Application.Bookings.Validation;
@@ -24,6 +22,10 @@ using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Bookings;
 using TooliRent.Infrastructure.Loans;
 using TooliRent.Application.Loans;
+using TooliRent.Application.Categories.Validation;
+using TooliRent.Infrastructure.Categories;
+using TooliRent.Application.Categories;
+using TooliRent.Application.Tools.Validation;
 
 namespace TooliRent.API
 {
@@ -55,6 +57,8 @@ namespace TooliRent.API
             builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
             builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+            builder.Services.AddScoped<IToolAdminRepository, ToolAdminRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
@@ -62,9 +66,19 @@ namespace TooliRent.API
             builder.Services.AddScoped<IToolService, ToolService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ILoanService, LoanService>();
-
+            builder.Services.AddScoped<IToolAdminService, ToolAdminService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            
             // Validators
-            builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);
+            builder.Services.AddValidatorsFromAssemblies(new[]
+            {
+                typeof(ToolCreateRequestValidator).Assembly,
+                typeof(ToolUpdateReqeustValidator).Assembly,
+                typeof(CategoryUpdateRequestValidator).Assembly,
+                typeof(CategoryCreateRequestValidator).Assembly,
+                typeof(BookingCreateRequestValidator).Assembly
+            });
+
 
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);

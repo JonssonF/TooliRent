@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TooliRent.Application.Users.DTOs;
 using TooliRent.Domain.Common;
-using TooliRent.Domain.Users;
+using TooliRent.Domain.Interfaces;
 
 namespace TooliRent.Application.Users
 {
