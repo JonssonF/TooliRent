@@ -22,6 +22,9 @@ using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Bookings;
 using TooliRent.Infrastructure.Loans;
 using TooliRent.Application.Loans;
+using TooliRent.Application.Categories.Validation;
+using TooliRent.Infrastructure.Categories;
+using TooliRent.Application.Categories;
 
 namespace TooliRent.API
 {
@@ -53,6 +56,8 @@ namespace TooliRent.API
             builder.Services.AddScoped<IToolReadRepository, ToolReadRepository>();
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
             builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+            builder.Services.AddScoped<IToolAdminRepository, ToolAdminRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Services
             builder.Services.AddScoped<IAdminUserService, AdminUserService>();
@@ -60,9 +65,13 @@ namespace TooliRent.API
             builder.Services.AddScoped<IToolService, ToolService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ILoanService, LoanService>();
-
+            builder.Services.AddScoped<IToolAdminService, ToolAdminService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             // Validators
+
             builder.Services.AddValidatorsFromAssembly(typeof(BookingCreateRequestValidator).Assembly);
+
+
 
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
