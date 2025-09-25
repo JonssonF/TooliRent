@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Interfaces;
@@ -33,7 +34,7 @@ namespace TooliRent.Application.Tools
             _updateValidator = updateValidator;
         }
 
-
+        
 
         public async Task<(bool ok, string? error, int id)> CreateAsync(ToolCreateRequest request, CancellationToken cancellationToken = default)
         {
@@ -122,5 +123,6 @@ namespace TooliRent.Application.Tools
             return (true, null);
         }
 
+        
     }
 }

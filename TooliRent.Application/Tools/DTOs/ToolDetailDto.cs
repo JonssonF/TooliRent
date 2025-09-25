@@ -9,7 +9,7 @@ namespace TooliRent.Application.Tools.DTOs
         string? Description, 
         string? Manufacturer, 
         string? CategoryName, 
-        string Status, 
+        ToolStatus Status, 
         DateTime? LastMaintenanceDate, 
         DateTime? NextMaintenanceDate, 
         decimal PricePerDay,

@@ -12,7 +12,7 @@ namespace TooliRent.Application.Tools.DTOs
         int Id,
         string Name,
         string? CategoryName,
-        string Status,
+        ToolStatus Status,
         decimal PricePerDay
     );
 }
