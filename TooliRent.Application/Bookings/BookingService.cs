@@ -45,6 +45,7 @@ namespace TooliRent.Application.Bookings
             }
 
             var booking = _mapper.Map<Booking>(request);
+            booking.MemberId = memberId;
 
             await _bookingRepo.AddAsync(booking, cancellationToken);
             await _bookingRepo.SetToolsStatusAsync(requestedTools, ToolStatus.AwaitingPickup, cancellationToken);

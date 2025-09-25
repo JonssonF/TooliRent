@@ -21,6 +21,7 @@ namespace TooliRent.API.Controllers
         }
         // Get a list of tools with optional search, category, and status filters.
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IReadOnlyList<ToolListItemDto>>> Get(
             [FromQuery] string? search = null,
             [FromQuery] int? categoryId = null,

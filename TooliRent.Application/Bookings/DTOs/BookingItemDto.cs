@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace TooliRent.Application.Bookings.DTOs
 {
     // DTO representing an individual item in a booking, including tool details.
-    public record BookingItemDto
+    public sealed record BookingItemDto
     (
         int ToolId,
-        string Name,
-        string? Category,
+        string ToolName,
+        string? CategoryName,
         string? Status
     );
 
