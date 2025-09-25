@@ -7,9 +7,9 @@ using TooliRent.Domain.Entities;
 
 namespace TooliRent.API.Controllers.AdminOnly
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/categories")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminCategoriesController : ControllerBase
     {
         private readonly ICategoryService _service;

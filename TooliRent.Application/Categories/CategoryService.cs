@@ -81,6 +81,8 @@ namespace TooliRent.Application.Categories
             }
 
             entity.Name = request.Name;
+            entity.Description = request.Description;
+
             await _uow.SaveChangesAsync(cancellationToken);
 
             var rows = await _catRep.GetAllAsync(cancellationToken);

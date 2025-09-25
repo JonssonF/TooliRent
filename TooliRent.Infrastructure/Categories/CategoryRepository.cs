@@ -32,7 +32,6 @@ namespace TooliRent.Infrastructure.Categories
         public Task<ToolCategory?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return _context.Categories
-                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 

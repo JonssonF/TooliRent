@@ -7,9 +7,10 @@ using TooliRent.Domain.Tools;
 
 namespace TooliRent.API.Controllers.AdminOnly
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/tools")]
     [ApiController]
-    
+    //[Authorize(Roles = "Admin")]
+
     public class AdminToolController : ControllerBase
     {
         private readonly IToolAdminService _service;
