@@ -8,7 +8,6 @@ using TooliRent.Application.Bookings.DTOs;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Interfaces;
-using TooliRent.Domain.Tools;
 
 namespace TooliRent.Application.Bookings
 {

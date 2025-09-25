@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
+using TooliRent.Domain.Interfaces;
 using TooliRent.Domain.Tools;
 
 namespace TooliRent.Application.Tools

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TooliRent.Domain.Users;
 
-namespace TooliRent.Domain.Users
+namespace TooliRent.Domain.Interfaces
 {
     public interface IUserReadRepository
     {

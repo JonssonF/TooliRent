@@ -7,10 +7,10 @@ using TooliRent.Domain.Entities;
 
 namespace TooliRent.Domain.Interfaces
 {
-    public interface IToolRepository
+    public interface IToolAdminRepository
     {
+        Task<Tool?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
         Task AddAsync(Tool tool, CancellationToken cancellationToken = default);
-        Task RemoveAsync(Tool tool, CancellationToken cancellationToken = default);
-        Task<Tool?> FindByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Tool tool, CancellationToken cancellationToken = default);
     }
 }
