@@ -26,4 +26,7 @@ public interface IToolReadRepository
 
     // Retrieves detailed information about a specific tool by its ID.
     Task<ToolDetailRow?> GetDetailByIdAsync(int id, CancellationToken cancellationToken = default);
+    // Returns a dictionary mapping tool IDs to their last return dates. If a tool has never been returned, its value will be null.
+    Task<Dictionary<int, DateTime?>> GetLastReturnDatesAsync(IEnumerable<int> toolIds, CancellationToken cancellationToken = default);
+
 }

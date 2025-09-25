@@ -15,6 +15,7 @@ namespace TooliRent.Application.Tools
     public sealed class ToolAdminService : IToolAdminService
     {
         private readonly IToolAdminRepository _tools;
+        private readonly IToolReadRepository _toolRead;
         private readonly IUnitOfWork _uow;
         private readonly ICategoryRepository _categories;
         private readonly IValidator<ToolCreateRequest> _createValidator;
@@ -22,12 +23,14 @@ namespace TooliRent.Application.Tools
 
         public ToolAdminService(
             IToolAdminRepository tools,
+            IToolReadRepository toolRead,
             IUnitOfWork uow,
             ICategoryRepository categories,
             IValidator<ToolCreateRequest> createValidator,
             IValidator<ToolUpdateRequest> updateValidator)
         {
             _tools = tools;
+            _toolRead = toolRead;
             _uow = uow;
             _categories = categories;
             _createValidator = createValidator;
@@ -123,6 +126,33 @@ namespace TooliRent.Application.Tools
             return (true, null);
         }
 
-        
+        public async Task<int> CompleteMaintenanceAsync(CancellationToken cancellationToken = default)
+        {
+            var inMaintenance = await _tools.GetByStatusAsync(ToolStatus.Maintenance, cancellationToken);
+            if(inMaintenance.Count == 0)
+            {
+               return 0;
+            }
+
+            var lastReturns = await _toolRead.GetLastReturnDatesAsync(inMaintenance.Select(t => t.Id), cancellationToken);
+
+            
+            foreach(var tool in inMaintenance)
+            {
+                tool.Status = ToolStatus.Available;
+
+                if(lastReturns.TryGetValue(tool.Id, out var returnDate) && returnDate.HasValue)
+                {
+                    tool.LastMaintenanceDate = returnDate.Value.Date;
+                }
+                else
+                {
+                    tool.LastMaintenanceDate = DateTime.UtcNow.Date;
+                }
+            }
+
+            await _uow.SaveChangesAsync(cancellationToken);
+            return inMaintenance.Count;
+        }
     }
 }

@@ -66,9 +66,7 @@ namespace TooliRent.Infrastructure.Tools
                     t.Id,
                     t.Name,
                     t.Category != null ? t.Category.Name : null,
-                    (t.LastMaintenanceDate.HasValue && t.LastMaintenanceDate.Value.Date == DateTime.UtcNow.Date)
-                    ? ToolStatus.Maintenance
-                    : t.Status,
+                    t.Status,
                     t.PricePerDay
                 ))
                 .ToListAsync(cancellationToken);
@@ -132,6 +130,22 @@ namespace TooliRent.Infrastructure.Tools
                 );
 
             return await query.FirstOrDefaultAsync(cancellationToken);
+        }
+        public async Task<Dictionary<int, DateTime?>> GetLastReturnDatesAsync(IEnumerable<int> toolIds, CancellationToken cancellationToken = default)
+        {
+            var ids = toolIds.Distinct().ToList();
+
+            var items = await _context.LoanItems
+                .Where(li => ids.Contains(li.ToolId) && li.Loan.ReturnedAt != null)
+                .GroupBy(li => li.ToolId)
+                .Select(g => new
+                {
+                    ToolId = g.Key,
+                    LastReturnAt = g.Max(li => li.Loan.ReturnedAt)
+                })
+                .ToListAsync(cancellationToken);
+
+            return items.ToDictionary(x => x.ToolId, x => x.LastReturnAt);
         }
     }
 }

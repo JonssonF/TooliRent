@@ -122,10 +122,6 @@ namespace TooliRent.Application.Loans
             {
                 if (li.Tool is not null)
                 {
-                    li.Tool.LastMaintenanceDate = now;
-
-                    li.Tool.NextMaintenanceDate = now.AddMonths(6);
-
                     li.Tool!.Status = ToolStatus.Maintenance;
                 }
             }

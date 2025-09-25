@@ -63,18 +63,5 @@ namespace TooliRent.Infrastructure.Categories
                 .Select(x => new CategoryRow(x.Id, x.Name, x.Description, x.ToolCount))
                 .ToListAsync(cancellationToken);
         }
-
-        //public async Task<CategoryRow?> GetByIdRowAsync(int id, CancellationToken cancellationToken = default)
-        //{
-        //    return await _context.Categories
-        //        .AsNoTracking()
-        //        .Where(c => c.Id == id)
-        //        .Select(c => new CategoryRow(
-        //            c.Id,
-        //            c.Name,
-        //            c.Description,
-        //            _context.Tools.Count(t => t.CategoryId == c.Id)))
-        //        .FirstOrDefaultAsync(cancellationToken);
-        //}
     }
 }

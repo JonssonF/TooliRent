@@ -51,5 +51,12 @@ namespace TooliRent.API.Controllers.AdminOnly
             }
             return NoContent();
         }
+        //
+        [HttpPost("maintenance/complete")]
+        public async Task<IActionResult> CompleteMaintenance(CancellationToken cancellationToken)
+        {
+            var updated = await _service.CompleteMaintenanceAsync(cancellationToken);
+            return Ok(new { updated });
+        }
     }
 }
