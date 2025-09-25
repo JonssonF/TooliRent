@@ -19,8 +19,4 @@
     <ProjectReference Include="..\TooliRent.Domain\TooliRent.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Tools\Validation\" />
-  </ItemGroup>
-
 </Project>
