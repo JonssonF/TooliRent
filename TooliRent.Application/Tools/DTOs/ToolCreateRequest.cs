@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TooliRent.Domain.Tools
+﻿namespace TooliRent.Application.Tools.DTOs
 {
     public sealed record ToolCreateRequest(
         string Name,

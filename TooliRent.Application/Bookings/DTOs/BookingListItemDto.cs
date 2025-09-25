@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Bookings.DTOs
 {
+    // DTO for listing bookings with essential information such as ID, dates, status, tool count, and cancellation eligibility.
     public class BookingListItemDto
     {
         public int Id { get; set; }

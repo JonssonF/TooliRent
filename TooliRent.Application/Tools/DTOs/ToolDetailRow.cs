@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Enums;
 
-namespace TooliRent.Domain.Tools;
+namespace TooliRent.Application.Tools.DTOs;
 
     public sealed record ToolDetailRow(
     int Id,

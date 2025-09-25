@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AutoMapper;
+using FluentValidation;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,41 +18,39 @@ namespace TooliRent.Application.Bookings
         private readonly IBookingRepository _bookingRepo;
         private readonly IToolReadRepository _toolRepo;
         private readonly IUnitOfWork _uow;
-
-        public BookingService(IBookingRepository bookingRepo, IToolReadRepository toolRepo, IUnitOfWork uow)
+        private readonly IMapper _mapper;
+        public BookingService(IBookingRepository bookingRepo, IToolReadRepository toolRepo, IUnitOfWork uow, IMapper mapper)
         {
             _bookingRepo = bookingRepo;
             _toolRepo = toolRepo;
             _uow = uow;
+            _mapper = mapper;
         }
-
-        private static BookingDetailsDto ToDetailsDto(Booking b) =>
-            new BookingDetailsDto
-            {
-                Id = b.Id,
-                StartDate = b.StartDate,
-                EndDate = b.EndDate,
-                Status = b.Status,
-                TotalDays = (b.EndDate - b.StartDate).TotalDays,
-                Items = b.Items.Select(i => new BookingItemDto(
-                    i.ToolId,
-                    i.Tool!.Name,
-                    i.Tool.Category?.Name,
-                    i.Tool.Status.ToString()
-                )).ToList()
-            };
-        private static BookingListItemDto ToListItemDto(Booking b) =>
-            new BookingListItemDto
-            {
-                Id = b.Id,
-                StartDate = b.StartDate,
-                EndDate = b.EndDate,
-                Status = b.Status.ToString(),
-                ToolCount = b.Items.Count,
-                CanBeCancelled = DateTime.UtcNow < b.StartDate && b.Status != BookingStatus.Cancelled
-            };
-
-
+        //private static BookingDetailsDto ToDetailsDto(Booking b) =>
+        //    new BookingDetailsDto
+        //    {
+        //        Id = b.Id,
+        //        StartDate = b.StartDate,
+        //        EndDate = b.EndDate,
+        //        Status = b.Status,
+        //        TotalDays = (b.EndDate - b.StartDate).TotalDays,
+        //        Items = b.Items.Select(i => new BookingItemDto(
+        //            i.ToolId,
+        //            i.Tool!.Name,
+        //            i.Tool.Category?.Name,
+        //            i.Tool.Status.ToString()
+        //        )).ToList()
+        //    };
+        //private static BookingListItemDto ToListItemDto(Booking b) =>
+        //    new BookingListItemDto
+        //    {
+        //        Id = b.Id,
+        //        StartDate = b.StartDate,
+        //        EndDate = b.EndDate,
+        //        Status = b.Status.ToString(),
+        //        ToolCount = b.Items.Count,
+        //        CanBeCancelled = DateTime.UtcNow < b.StartDate && b.Status != BookingStatus.Cancelled
+        //    };
         public async Task<(bool Ok, string? Error, BookingDetailsDto? Data)> CreateAsync(BookingCreateRequest request, string memberId, CancellationToken cancellationToken)
         {
             var requestedTools = request.ToolIds.Distinct().ToList();
@@ -87,19 +87,19 @@ namespace TooliRent.Application.Bookings
 
 
             var entity = await _bookingRepo.GetByIdForMemberAsync(booking.Id, memberId, cancellationToken);
-            return (true, null, entity != null ? ToDetailsDto(entity) : null);
+            return (true, null, entity != null ? _mapper.Map<BookingDetailsDto>(entity) : null);
         }
 
         public async Task<List<BookingListItemDto>> GetMineAsync(string memberId, CancellationToken cancellationToken)
         {
             var entities = await _bookingRepo.GetForMemberAsync(memberId, cancellationToken);
-            return entities.Select(ToListItemDto).ToList();
+            return _mapper.Map<List<BookingListItemDto>>(entities);
         }
 
         public async Task<BookingDetailsDto?> GetMineByIdAsync(int id, string memberId, CancellationToken cancellationToken)
         {
             var entity = await _bookingRepo.GetByIdForMemberAsync(id, memberId, cancellationToken);
-            return entity != null ? ToDetailsDto(entity) : null;
+            return entity != null ? _mapper.Map<BookingDetailsDto>(entity) : null;
         }
         public async Task<(bool Ok, string? Error)> CancelAsync(int id, string memberId, CancellationToken cancellationToken)
         {
@@ -117,7 +117,7 @@ namespace TooliRent.Application.Bookings
                 return (false, "Cannot cancel a booking that has already started or passed.");
             }
             booking.Status = BookingStatus.Cancelled;
-            await _bookingRepo.SaveChangesAsync(cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken);
             return (true, null);
         }
     }

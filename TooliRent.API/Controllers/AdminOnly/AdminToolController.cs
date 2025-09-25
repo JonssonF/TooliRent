@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Application.Tools;
-using TooliRent.Domain.Interfaces;
+using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Tools;
 
 namespace TooliRent.API.Controllers.AdminOnly
 {
     [Route("api/admin/tools")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
 
     public class AdminToolController : ControllerBase
     {
@@ -19,7 +18,7 @@ namespace TooliRent.API.Controllers.AdminOnly
         {
             _service = service;
         }
-
+        // Create a new tool
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ToolCreateRequest request, CancellationToken cancellationToken)
         {
@@ -30,7 +29,7 @@ namespace TooliRent.API.Controllers.AdminOnly
             }
             return CreatedAtAction(nameof(Create), new { id }, new { id });
         }
-
+        // Update an existing tool
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ToolUpdateRequest request, CancellationToken cancellationToken)
         {
@@ -41,7 +40,7 @@ namespace TooliRent.API.Controllers.AdminOnly
             }
             return NoContent();
         }
-
+        // Delete a tool
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
         {

@@ -9,7 +9,7 @@ namespace TooliRent.API.Controllers.AdminOnly
 {
     [Route("api/admin/categories")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminCategoriesController : ControllerBase
     {
         private readonly ICategoryService _service;
@@ -18,14 +18,14 @@ namespace TooliRent.API.Controllers.AdminOnly
         {
             _service = service;
         }
-
+        // Get all categories
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<CategoryDto>>> GetAll(CancellationToken cancellationToken)
         {
             var rows = await _service.GetAllAsync(cancellationToken);
             return Ok(rows);
         }
-
+        // Create a new category
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CategoryCreateRequest request, CancellationToken cancellationToken)
         {
@@ -36,7 +36,7 @@ namespace TooliRent.API.Controllers.AdminOnly
             }
             return CreatedAtAction(nameof(GetAll), new { id = data!.Id }, data);
         }
-
+        // Update an existing category
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
@@ -47,7 +47,7 @@ namespace TooliRent.API.Controllers.AdminOnly
             }
             return Ok(data);
         }
-
+        // Delete a category
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {

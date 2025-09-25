@@ -11,7 +11,7 @@ using TooliRent.Infrastructure.Identity;
 
 namespace TooliRent.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/loans")]
     [ApiController]
     [Authorize(Roles = "Admin, Member")]
     public sealed class LoansController : ControllerBase
@@ -32,9 +32,6 @@ namespace TooliRent.API.Controllers
             ?? User.FindFirstValue("sub")
             ?? throw new InvalidOperationException("User ID claim not found.");
         /*---------------------------------------------------------------------------*/
-
-        // Old idea for admin check
-        private bool IsAdmin() => User.IsInRole(Roles.Admin);
 
         // Pickup a tool (create a loan)
         [HttpPost("{bookingId:int}/pickup")]

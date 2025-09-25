@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TooliRent.Application.Tools.DTOs;
 using TooliRent.Domain.Entities;
+using TooliRent.Domain.Tools;
 
 namespace TooliRent.Application.Tools.Mapping
 {
@@ -16,7 +12,7 @@ namespace TooliRent.Application.Tools.Mapping
             CreateMap<Tool, ToolListItemDto>()
                 .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
                 .ForCtorParam("Name", o => o.MapFrom(s => s.Name))
-                .ForCtorParam("CategoryName", o => o.MapFrom(s => s.Category.Name))
+                .ForCtorParam("CategoryName", o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
                 .ForCtorParam("PricePerDay", o => o.MapFrom(s => s.PricePerDay))
                 .ForCtorParam("Status", o => o.MapFrom(s => s.Status.ToString()));
 
@@ -24,13 +20,16 @@ namespace TooliRent.Application.Tools.Mapping
             CreateMap<Tool, ToolDetailDto>()
                 .ForCtorParam("Id", o => o.MapFrom(s => s.Id))
                 .ForCtorParam("Name", o => o.MapFrom(s => s.Name))
-                .ForCtorParam("Manufacturer", o => o.MapFrom(s => s.Manufacturer))
-                .ForCtorParam("CategoryName", o => o.MapFrom(s => s.Category.Name))
                 .ForCtorParam("Description", o => o.MapFrom(s => s.Description))
-                .ForCtorParam("SerialNumber", o => o.MapFrom(s => s.SerialNumber))
+                .ForCtorParam("Manufacturer", o => o.MapFrom(s => s.Manufacturer))
+                .ForCtorParam("CategoryName", o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
+                .ForCtorParam("Status", o => o.MapFrom(s => s.Status.ToString()))
+                .ForCtorParam("LastMaintenanceDate", o => o.MapFrom(_ => (DateTime?)null))
+                .ForCtorParam("NextMaintenanceDate", o => o.MapFrom(_ => (DateTime?)null))
                 .ForCtorParam("PricePerDay", o => o.MapFrom(s => s.PricePerDay))
-                .ForCtorParam("Status", o => o.MapFrom(s => s.Status.ToString()));
+                .ForCtorParam("TotalLoans", o => o.MapFrom(_ => 0));
 
+            CreateMap<ToolDetailRow, ToolDetailDto>();
         }
     }
 }

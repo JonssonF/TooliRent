@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Bookings.DTOs
 {
+    // DTO for creating a new booking, including start and end dates and a list of tool IDs to be booked.
     public class BookingCreateRequest
     {
         public DateTime StartDate { get; set; }

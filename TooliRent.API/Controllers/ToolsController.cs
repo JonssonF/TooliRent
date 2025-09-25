@@ -8,7 +8,7 @@ using TooliRent.Domain.Tools;
 
 namespace TooliRent.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tools")]
     [ApiController]
     [Authorize(Roles = "Admin, Member")]
     public sealed class ToolsController : ControllerBase
@@ -19,7 +19,7 @@ namespace TooliRent.API.Controllers
         {
             _service = service;
         }
-
+        // Get a list of tools with optional search, category, and status filters.
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<ToolListItemDto>>> Get(
             [FromQuery] string? search = null,
@@ -30,7 +30,7 @@ namespace TooliRent.API.Controllers
             var result = await _service.GetAsync(search, categoryId, status, cancellationToken);
             return Ok(result);
         }
-
+        // Get tool availability within a specified date range, with optional search and category filters.
         [HttpGet("availability")]
         public async Task<IActionResult> GetAvailability(
             [FromQuery] DateTime? startDate,
@@ -52,7 +52,7 @@ namespace TooliRent.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        // Get detailed information about a specific tool by its ID.
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ToolDetailDto>> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
