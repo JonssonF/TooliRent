@@ -26,34 +26,11 @@ namespace TooliRent.Application.Bookings
             _uow = uow;
             _mapper = mapper;
         }
-        //private static BookingDetailsDto ToDetailsDto(Booking b) =>
-        //    new BookingDetailsDto
-        //    {
-        //        Id = b.Id,
-        //        StartDate = b.StartDate,
-        //        EndDate = b.EndDate,
-        //        Status = b.Status,
-        //        TotalDays = (b.EndDate - b.StartDate).TotalDays,
-        //        Items = b.Items.Select(i => new BookingItemDto(
-        //            i.ToolId,
-        //            i.Tool!.Name,
-        //            i.Tool.Category?.Name,
-        //            i.Tool.Status.ToString()
-        //        )).ToList()
-        //    };
-        //private static BookingListItemDto ToListItemDto(Booking b) =>
-        //    new BookingListItemDto
-        //    {
-        //        Id = b.Id,
-        //        StartDate = b.StartDate,
-        //        EndDate = b.EndDate,
-        //        Status = b.Status.ToString(),
-        //        ToolCount = b.Items.Count,
-        //        CanBeCancelled = DateTime.UtcNow < b.StartDate && b.Status != BookingStatus.Cancelled
-        //    };
+        
         public async Task<(bool Ok, string? Error, BookingDetailsDto? Data)> CreateAsync(BookingCreateRequest request, string memberId, CancellationToken cancellationToken)
         {
             var requestedTools = request.ToolIds.Distinct().ToList();
+           
             var count = await _toolRepo.CountExistingAsync(requestedTools, cancellationToken);
             if (count != requestedTools.Count)
             {
@@ -67,19 +44,7 @@ namespace TooliRent.Application.Bookings
                 return (false, "Date conflict: Atleast one of your requested tools is already booked between the dates.", null);
             }
 
-            var booking = new Booking
-            {
-                MemberId = memberId,
-                StartDate = start,
-                EndDate = end,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.UtcNow,
-                Items = requestedTools.Select(tid => new BookingItem
-                {
-                    ToolId = tid
-                    
-                }).ToList()
-            };
+            var booking = _mapper.Map<Booking>(request);
 
             await _bookingRepo.AddAsync(booking, cancellationToken);
             await _bookingRepo.SetToolsStatusAsync(requestedTools, ToolStatus.AwaitingPickup, cancellationToken);

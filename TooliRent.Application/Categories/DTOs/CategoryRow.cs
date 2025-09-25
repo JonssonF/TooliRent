@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TooliRent.Domain.Categories
+namespace TooliRent.Application.Categories.DTOs
 {
     public sealed record CategoryRow(
         int Id, 
