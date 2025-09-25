@@ -30,6 +30,7 @@ namespace TooliRent.Application.Loans
             if (booking is null)
                 throw new KeyNotFoundException("Booking not found.");
 
+            Console.WriteLine($"[Pickup] booking.MemberId={booking.MemberId}, userId={userId}");
             if (booking.MemberId != userId)
                 throw new UnauthorizedAccessException("You are not allowed to pickup this booking.");
 
@@ -121,10 +122,6 @@ namespace TooliRent.Application.Loans
             {
                 if (li.Tool is not null)
                 {
-                    li.Tool.LastMaintenanceDate = now;
-
-                    li.Tool.NextMaintenanceDate = now.AddMonths(6);
-
                     li.Tool!.Status = ToolStatus.Maintenance;
                 }
             }

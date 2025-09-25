@@ -8,7 +8,7 @@ using TooliRent.Application.Bookings.DTOs;
 
 namespace TooliRent.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/bookings")]
     [ApiController]
     [Authorize(Roles = "Member")]
 

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TooliRent.Domain.Enums;
+﻿using TooliRent.Domain.Enums;
 
-namespace TooliRent.Domain.Tools
+namespace TooliRent.Application.Tools.DTOs
 {
     public sealed record ToolAvailabilityRow(
         int Id,

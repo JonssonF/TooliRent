@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Authentication
 {
+    // Represents an authenticated user with their details and roles.
     public sealed record AuthUser(
         string Id,
         string? Email,

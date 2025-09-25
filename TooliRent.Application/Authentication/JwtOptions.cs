@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Authentication
 {
+    // Configuration options for JWT (JSON Web Token) authentication.
     public sealed class JwtOptions
     {
         public string Key { get; set; } = string.Empty;

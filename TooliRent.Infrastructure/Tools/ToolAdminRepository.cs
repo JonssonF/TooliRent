@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Domain.Entities;
+using TooliRent.Domain.Enums;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Persistence;
 
@@ -34,5 +35,14 @@ namespace TooliRent.Infrastructure.Tools
             _context.Tools.Remove(tool);
             return Task.CompletedTask;
         }
+
+        public Task<List<Tool>> GetByStatusAsync(ToolStatus status, CancellationToken cancellationToken = default)
+        {
+            return _context.Tools
+                .Where(t => t.Status == status)
+                .ToListAsync(cancellationToken);
+        }
+
+        
     }
 }

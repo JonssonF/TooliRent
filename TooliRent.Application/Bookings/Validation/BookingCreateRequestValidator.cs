@@ -10,6 +10,7 @@ namespace TooliRent.Application.Bookings.Validation
 {
     public class BookingCreateRequestValidator : AbstractValidator<BookingCreateRequest>
     {
+        // Validator for BookingCreateRequest to ensure valid booking data.
         public BookingCreateRequestValidator()
         {
             RuleFor(x => x.ToolIds)

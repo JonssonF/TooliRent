@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TooliRent.Domain.Users;
+using TooliRent.Application.Users.DTOs;
 
 namespace TooliRent.Domain.Interfaces
 {

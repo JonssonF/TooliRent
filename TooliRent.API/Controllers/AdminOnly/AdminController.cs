@@ -19,7 +19,7 @@ namespace TooliRent.API.Controllers.AdminOnly
         {
             _admin = admin;
         }
-
+        // Promote a user to admin
         [HttpPost("promote")]
         public async Task<IActionResult> Promote([FromBody] PromoteUserRequest request, CancellationToken ct = default)
         {
@@ -32,7 +32,7 @@ namespace TooliRent.API.Controllers.AdminOnly
                 user = data
             });
         }
-
+        // Demote an admin to user
         [HttpPost("demote")]
         public async Task<IActionResult> Demote([FromBody] DemoteUserRequest request, CancellationToken ct = default)
         {
@@ -45,7 +45,7 @@ namespace TooliRent.API.Controllers.AdminOnly
                 user = data
             });
         }
-
+        // Deactivate a user account
         [HttpPost("users/{id}/deactivate")]
         public async Task<IActionResult> DeactivateUser([FromRoute] string id, CancellationToken ct = default)
         {
@@ -54,6 +54,7 @@ namespace TooliRent.API.Controllers.AdminOnly
             return StatusCode((int)status, new {user = data});
         }
 
+        // Activate a user account
         [HttpPost("users/{id}/activate")]
         public async Task<IActionResult> ActivateUser([FromRoute] string id, CancellationToken ct = default)
         {

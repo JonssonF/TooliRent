@@ -1,9 +1,4 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TooliRent.Application.Categories.DTOs;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Interfaces;
@@ -13,24 +8,27 @@ namespace TooliRent.Application.Categories
     public sealed class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _catRep;
+        private readonly ICategoryReadRepository _catRead;
         private readonly IUnitOfWork _uow;
         private readonly IValidator<CategoryCreateRequest> _createValidator;
         private readonly IValidator<CategoryUpdateRequest> _updateValidator;
 
         public CategoryService(
-            ICategoryRepository catRep, 
+            ICategoryRepository catRep,
+            ICategoryReadRepository catRead,
             IUnitOfWork uow, 
-            IValidator<CategoryCreateRequest> createValidator, 
+            IValidator<CategoryCreateRequest> createValidator,
             IValidator<CategoryUpdateRequest> updateValidator)
         {
             _catRep = catRep;
+            _catRead = catRead;
             _uow = uow;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
         }
         public async Task<IReadOnlyList<CategoryDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            var rows = await _catRep.GetAllAsync(cancellationToken);
+            var rows = await _catRead.GetAllAsync(cancellationToken);
             return rows.Select(r => new CategoryDto(r.Id, r.Name, r.Description, r.ToolCount)).ToList();
         }
 
@@ -56,7 +54,7 @@ namespace TooliRent.Application.Categories
             await _catRep.AddAsync(entity, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
 
-            var rows = await _catRep.GetAllAsync(cancellationToken);
+            var rows = await _catRead.GetAllAsync(cancellationToken);
             var row = rows.First(r => r.Id == entity.Id);
             return (true, null, new CategoryDto(row.Id, row.Name, row.Description, row.ToolCount));
         }
@@ -85,7 +83,7 @@ namespace TooliRent.Application.Categories
 
             await _uow.SaveChangesAsync(cancellationToken);
 
-            var rows = await _catRep.GetAllAsync(cancellationToken);
+            var rows = await _catRead.GetAllAsync(cancellationToken);
             var row = rows.First(r => r.Id == entity.Id);
             return (true, null, new CategoryDto(row.Id, row.Name, row.Description, row.ToolCount));
         }

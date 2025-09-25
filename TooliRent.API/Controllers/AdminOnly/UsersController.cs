@@ -6,7 +6,7 @@ using TooliRent.Domain.Common;
 
 namespace TooliRent.API.Controllers.AdminOnly
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/users")]
     [ApiController]
     [Authorize(Roles = "Admin")]
 

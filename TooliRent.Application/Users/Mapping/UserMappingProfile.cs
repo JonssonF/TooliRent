@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Application.Users.DTOs;
-using TooliRent.Domain.Users;
 
 namespace TooliRent.Application.Users.Mapping
 {

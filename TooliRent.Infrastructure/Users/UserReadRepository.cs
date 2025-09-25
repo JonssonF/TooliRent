@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using TooliRent.Domain.Interfaces;
-using TooliRent.Domain.Users;
+using TooliRent.Application.Users.DTOs;
 using TooliRent.Infrastructure.Persistence;
+using TooliRent.Application.Tools;
 
 namespace TooliRent.Infrastructure.Users
 {

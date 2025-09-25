@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TooliRent.Application.Authentication;
+using TooliRent.Application.Authentication.DTOs;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Identity;
 using TooliRent.Infrastructure.Identity;
