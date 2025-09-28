@@ -28,6 +28,7 @@ using TooliRent.Application.Categories;
 using TooliRent.Application.Tools.Validation;
 using TooliRent.Application.Bookings.Mapping;
 using TooliRent.Application.Tools.Mapping;
+using TooliRent.Application.Loans.Validation;
 
 namespace TooliRent.API
 {
@@ -79,7 +80,9 @@ namespace TooliRent.API
                 typeof(ToolUpdateReqeustValidator).Assembly,
                 typeof(CategoryUpdateRequestValidator).Assembly,
                 typeof(CategoryCreateRequestValidator).Assembly,
-                typeof(BookingCreateRequestValidator).Assembly
+                typeof(BookingCreateRequestValidator).Assembly,
+                typeof(PickupCommandValidator).Assembly,
+                typeof(ReturnCommandValidator).Assembly
             });
 
             // AutoMapper
