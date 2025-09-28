@@ -132,10 +132,10 @@ The project is based on **N-tier architecture** with clear separation of concern
 Planned improvements and extra features:  
 - ⏳ **Docker Compose** (API + DB packaged for easy startup)  
 - ⏳ **Global Exception Middleware** (RFC 7807 standardized error responses)  
-- ⏳ **Rate Limiting** (protect sensitive endpoints like `/auth/login`)  
 - ⏳ **Integration Tests** (WebApplicationFactory + InMemory DB)  
 - ⏳ **Response Caching** (optimize frequent GET requests)  
-
+- ✅ **Rate Limiting** (protect sensitive endpoints like `/auth/login`)
+- Made a lightweight ratelimiting that stores the Ip-adress that made the request.
 ---
 
 ## ⚙️ Getting Started
@@ -145,13 +145,43 @@ Planned improvements and extra features:
 - SQL Server
 - IDE of choice
 
+### 📦 NuGet Packages
+
+This project uses the following NuGet packages:
+
+- Microsoft.EntityFrameworkCore
+- Microsoft.EntityFrameworkCore.Design
+- Microsoft.EntityFrameworkCore.SqlServer
+- Microsoft.EntityFrameworkCore.Tools
+- Microsoft.AspNetCore.Identity
+- Microsoft.AspNetCore.Authentication.JwtBearer
+- Swashbuckle.AspNetCore
+- FluentValidation.AspNetCore
+- AutoMapper.Extensions.Microsoft.DependencyInjection
+  
 ### Installation
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/JonssonF/TooliRent.git
    cd TooliRent
+2. Configure the database
 
+The project uses Entity Framework Core (Code-First).
+In appsettings.Development.json you’ll find the connection string for SQL Server (adjust it to your local setup, e.g. localhost or LocalDB).
+
+3. Apply migrations
+
+Make sure the database is created and up to date:
+dotnet ef database update --project TooliRent.Infrastructure --startup-project TooliRent.API
+
+4. Run the API
+dotnet run --project TooliRent.API
+
+5. Test in Swagger
+Open your browser at:
+https://localhost:5001/swagger
+Here you can try all endpoints
 ---
 
 ## 👨‍💻 Author
