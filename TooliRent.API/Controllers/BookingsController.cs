@@ -23,26 +23,28 @@ namespace TooliRent.API.Controllers
             _validator = validator;
         }
 
-        // Overkill helper method to get user id from various claim types depending on the auth provider.
-        private string GetUserId()
-        {
-            return User.FindFirstValue("sub") // JWT standard
-                ?? User.FindFirstValue("uid")  //Firebase, Auth0, Okta, Azure AD B2C, Cognito.
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier) // ASP.NET Identity, Azure AD.
-                ?? User.Identity!.Name!; // Fallback to username if no other claim is found.
-        }
-        // Create a new booking, validating the request body, and returning the created booking with a 201 status code.
+        /*------------Helper Method to find correct User throu claims----------------*/
+        private string? GetUserIdFromClaims() =>
+               User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue("sub")
+            ?? throw new InvalidOperationException("User ID claim not found.");
+        /*---------------------------------------------------------------------------*/
+        // Create a new booking, validating the request body, and returning the created booking.
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] BookingCreateRequest request, CancellationToken cancellationToken)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
             {
-                validationResult.AddToModelState(ModelState);
+                foreach (var er in validationResult.Errors)
+                {
+                    ModelState.AddModelError(er.PropertyName, er.ErrorMessage);
+                }
+
                 return ValidationProblem(ModelState);
             }
 
-            var (ok, error, data) = await _service.CreateAsync(request, GetUserId(), cancellationToken);
+            var (ok, error, data) = await _service.CreateAsync(request, GetUserIdFromClaims(), cancellationToken);
             if (!ok)
             {
                 return BadRequest(new { error });
@@ -55,7 +57,7 @@ namespace TooliRent.API.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetMine(CancellationToken cancellationToken)
         {
-            var data = await _service.GetMineAsync(GetUserId(), cancellationToken);
+            var data = await _service.GetMineAsync(GetUserIdFromClaims(), cancellationToken);
             return Ok(data);
         }
 
@@ -63,7 +65,7 @@ namespace TooliRent.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
-            var data = await _service.GetMineByIdAsync(id, GetUserId(), cancellationToken);
+            var data = await _service.GetMineByIdAsync(id, GetUserIdFromClaims(), cancellationToken);
             if (data == null)
             {
                 return NotFound();
@@ -74,7 +76,7 @@ namespace TooliRent.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
         {
-            var (ok, error) = await _service.CancelAsync(id, GetUserId(), cancellationToken);
+            var (ok, error) = await _service.CancelAsync(id, GetUserIdFromClaims(), cancellationToken);
             if (!ok)
             {
                 return BadRequest(new { error });

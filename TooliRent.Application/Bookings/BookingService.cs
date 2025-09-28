@@ -78,11 +78,21 @@ namespace TooliRent.Application.Bookings
             {
                 return (false, "Booking is already cancelled.");
             }
+            if(booking.MemberId != memberId)
+            {
+                return (false, "You are not allowed to cancel this booking");
+            }
             if (DateTime.UtcNow >= booking.StartDate)
             {
                 return (false, "Cannot cancel a booking that has already started or passed.");
             }
+            
             booking.Status = BookingStatus.Cancelled;
+            foreach(var bi in booking.Items)
+            {
+                var tool = bi.Tool!;
+                tool.Status = ToolStatus.Available;
+            }
             await _uow.SaveChangesAsync(cancellationToken);
             return (true, null);
         }

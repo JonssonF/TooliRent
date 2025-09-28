@@ -40,7 +40,12 @@ namespace TooliRent.API.Controllers
             var validationResult = await _pickupValidator.ValidateAsync(new PickupCommand(bookingId), cancellationToken);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                return ValidationProblem(ModelState);
             }
 
             var response = await _loan.PickupAsync(new PickupCommand(bookingId),
@@ -55,9 +60,14 @@ namespace TooliRent.API.Controllers
             var validationResult = await _returnValidator.ValidateAsync(new ReturnCommand(loanId), cancellationToken);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                return ValidationProblem(ModelState);
             }
-                var response = await _loan.ReturnAsync(new ReturnCommand(loanId),
+            var response = await _loan.ReturnAsync(new ReturnCommand(loanId),
                     GetUserIdFromClaims()!, cancellationToken);
                 return Ok(response);
         }

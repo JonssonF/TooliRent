@@ -15,12 +15,6 @@ namespace TooliRent.Application.Loans.Validation
             RuleFor(x => x.LoanId)
                 .GreaterThan(0)
                 .WithMessage("LoanId must be greater than 0.");
-            RuleFor(x => x.LoanId)
-                .NotEmpty()
-                .WithMessage("LoanId is required.");
-            RuleFor(x => x.LoanId)
-                .NotNull()
-                .WithMessage("LoanId cannot be null.");
         }
     }
 }

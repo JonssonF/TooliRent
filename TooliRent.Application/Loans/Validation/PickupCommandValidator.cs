@@ -15,12 +15,6 @@ namespace TooliRent.Application.Loans.Validation
             RuleFor(x => x.BookingId)
                 .GreaterThan(0)
                 .WithMessage("BookingId must be greater than 0.");
-            RuleFor(x => x.BookingId)
-                .NotEmpty()
-                .WithMessage("BookingId is required.");
-            RuleFor(x => x.BookingId)
-                .NotNull()
-                .WithMessage("BookingId cannot be null.");
         }
     }
 }
