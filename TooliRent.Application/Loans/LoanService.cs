@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,12 +17,14 @@ namespace TooliRent.Application.Loans
         private readonly IBookingRepository _bookings;
         private readonly ILoanRepository _loans;
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public LoanService(IBookingRepository bookings, ILoanRepository loans, IUnitOfWork uow)
+        public LoanService(IBookingRepository bookings, ILoanRepository loans, IUnitOfWork uow, IMapper mapper)
         {
             _bookings = bookings;
             _loans = loans;
             _uow = uow;
+            _mapper = mapper;
         }
 
         public async Task<LoanResponse> PickupAsync(PickupCommand cmd, string userId, CancellationToken cancellationToken = default)
@@ -32,21 +35,28 @@ namespace TooliRent.Application.Loans
 
             Console.WriteLine($"[Pickup] booking.MemberId={booking.MemberId}, userId={userId}");
             if (booking.MemberId != userId)
+            {
                 throw new UnauthorizedAccessException("You are not allowed to pickup this booking.");
-
+            }
             if (booking.Status != BookingStatus.Pending)
+            {
                 throw new InvalidOperationException($"Booking must be Pending (was {booking.Status}).");
+            }
 
             var now = DateTime.UtcNow;
             if (now < booking.StartDate.AddHours(-1))
+            {
                 throw new InvalidOperationException("Too early to pick up.");
+            }
             if (now > booking.EndDate)
+            {
                 throw new InvalidOperationException("Booking window has passed.");
-
+            }
             var existing = await _loans.GetActiveByBookingIdAsync(booking.Id, cancellationToken);
             if (existing is not null)
+            {
                 throw new InvalidOperationException("Loan already exists for this booking.");
-
+            }
             
             foreach (var bi in booking.Items)
             {
@@ -73,14 +83,15 @@ namespace TooliRent.Application.Loans
             await _loans.AddAsync(loan, cancellationToken);
             await _uow.SaveChangesAsync(cancellationToken);
 
-            return new LoanResponse(
-                BookingId: booking.Id,
-                LoanId: loan.Id,
-                ToolIds: loan.Items.Select(x => x.ToolId).ToList(),
-                OldBookingStatus: oldStatus,
-                NewBookingStatus: booking.Status.ToString(),
-                TimeStamp: now
-            );
+            var response = _mapper.Map<LoanResponse>(loan,
+                opt =>
+                {
+                    opt.Items["BookingId"] = booking.Id;
+                    opt.Items["OldBookingStatus"] = oldStatus;
+                    opt.Items["NewBookingStatus"] = booking.Status.ToString();
+                    opt.Items["TimeStamp"] = now;
+                });
+            return response;
         }
         
         public async Task<LoanResponse> ReturnAsync(ReturnCommand cmd, string userId, CancellationToken cancellationToken = default)
@@ -130,15 +141,16 @@ namespace TooliRent.Application.Loans
             booking.Status = BookingStatus.Completed;
             
             await _uow.SaveChangesAsync(cancellationToken);
-            
-            return new LoanResponse(
-                BookingId: booking.Id,
-                LoanId: loan.Id,
-                ToolIds: loan.Items.Select(x => x.ToolId).ToList(),
-                OldBookingStatus: oldStatus,
-                NewBookingStatus: booking.Status.ToString(),
-                TimeStamp: now
-            );
+
+            var response = _mapper.Map<LoanResponse>(loan,
+                opt =>
+                {
+                    opt.Items["BookingId"] = booking.Id;
+                    opt.Items["OldBookingStatus"] = oldStatus;
+                    opt.Items["NewBookingStatus"] = booking.Status.ToString();
+                    opt.Items["TimeStamp"] = now;
+                });
+            return response;
         }
 
         public async Task<int> MarkOverduesAsync(CancellationToken cancellationToken = default)
@@ -169,28 +181,13 @@ namespace TooliRent.Application.Loans
         public async Task<IReadOnlyList<ActiveLoanResponse>> GetActiveLoansByUserIdAsync(string userId, CancellationToken cancellationToken = default)
         {
             var loans = await _loans.GetActiveLoansByUserIdAsync(userId, cancellationToken);
-
-            return loans.Select(l => new ActiveLoanResponse(
-                l.Id,
-                l.BookingId,
-                l.PickUpAt,
-                l.DueAt,
-                l.IsOverDue,
-                l.Items.Select(i => i.ToolId).ToList()
-            )).ToList();
+            return loans.Select(l => _mapper.Map<ActiveLoanResponse>(l)).ToList();
         }
 
         public async Task<IReadOnlyList<ActiveLoanResponse>> GetAllActiveLoansAsync(CancellationToken cancellationToken = default)
         {
             var loans = await _loans.GetAllActiveLoansAsync();
-            return loans.Select(l => new ActiveLoanResponse(
-                l.Id,
-                l.BookingId,
-                l.PickUpAt,
-                l.DueAt,
-                l.IsOverDue,
-                l.Items.Select(i => i.ToolId).ToList()
-            )).ToList();
+            return loans.Select(l => _mapper.Map<ActiveLoanResponse>(l)).ToList();
         }
     }
 }
